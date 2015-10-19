@@ -14,7 +14,7 @@ def home():
     return render_template('home.html', current_time=now.ctime())
 
 @app.route('/teamlist')
-def teamlist()
+def teamlist():
     now = datetime.datetime.now()
     return render_template('teamlist.html', current_time=now.ctime())
     
