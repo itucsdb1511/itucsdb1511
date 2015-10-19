@@ -17,6 +17,11 @@ def home():
 def teamlist():
     now = datetime.datetime.now()
     return render_template('teamlist.html', current_time=now.ctime())
+
+@app.route('/riderlist')
+def riderlist():
+    now = datetime.datetime.now()
+    return render_template('riderlist.html', current_time=now.ctime())
     
 if __name__ == '__main__':
     PORT = int(os.getenv('VCAP_APP_PORT', '5000'))
