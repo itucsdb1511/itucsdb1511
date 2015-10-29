@@ -97,6 +97,24 @@ CREATE TABLE team (
 
 ALTER TABLE public.team OWNER TO vagrant;
 
+SET default_with_oids = false;
+
+--
+-- Name: toplist; Type: TABLE; Schema: public; Owner: vagrant; Tablespace: 
+--
+
+CREATE TABLE toplist (
+    toplist_id integer NOT NULL,
+    toplist_name character varying,
+    event_id integer,
+    player_id integer
+);
+
+
+ALTER TABLE public.toplist OWNER TO vagrant;
+
+SET default_with_oids = true;
+
 --
 -- Name: tournament; Type: TABLE; Schema: public; Owner: vagrant; Tablespace: 
 --
@@ -162,6 +180,14 @@ COPY team (team_id, team_name, team_player_count, event_id) FROM stdin;
 
 
 --
+-- Data for Name: toplist; Type: TABLE DATA; Schema: public; Owner: vagrant
+--
+
+COPY toplist (toplist_id, toplist_name, event_id, player_id) FROM stdin;
+\.
+
+
+--
 -- Data for Name: tournament; Type: TABLE DATA; Schema: public; Owner: vagrant
 --
 
@@ -216,6 +242,14 @@ ALTER TABLE ONLY player
 
 ALTER TABLE ONLY team
     ADD CONSTRAINT team_pkey PRIMARY KEY (team_id);
+
+
+--
+-- Name: toplist_pkey; Type: CONSTRAINT; Schema: public; Owner: vagrant; Tablespace: 
+--
+
+ALTER TABLE ONLY toplist
+    ADD CONSTRAINT toplist_pkey PRIMARY KEY (toplist_id);
 
 
 --
