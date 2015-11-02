@@ -25,7 +25,6 @@ class Team:
         self.Name = Name
 
 app = Flask(__name__)
-
 def get_elephantsql_dsn(vcap_services):
     """Returns the data source name for ElephantSQL."""
     parsed = json.loads(vcap_services)
@@ -72,13 +71,13 @@ def citylist():
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
         retval = ""
-        statement = """SELECT Team_ID, Team_Name FROM Team ORDER BY Team_ID"""
+        statement = """SELECT City_ID, City_Name FROM City ORDER BY City_ID"""
         cursor.execute(statement)
-        teams=[]
-        for Team_ID,Team_Name in cursor:
-           team=(Team(Team_ID,Team_Name))
-           teams.append(city)
-    return render_template('citylist.html', team_list=teams)
+        cities=[]
+        for City_ID,City_Name in cursor:
+           city=(City(City_ID,City_Name))
+           cities.append(city)
+    return render_template('citylist.html', citylist=teams)
 
 @app.route('/citydelete/<id>')
 def citydelete(id):
