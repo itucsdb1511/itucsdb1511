@@ -1,6 +1,17 @@
- <form action="/addcity" method="post">
+
+{% extends "layout_admin.html" %}
+{% block title %}City Add{% endblock %}
+{% block content %}
+
+  <form action="/addcity" method="post">
   City_ID: <input type="text" name="ID"><br>
   City_Name: <input type="text" name="Name"><br>
   <input type="submit" value="Submit">
 </form>
+
+{% endblock %}
+
+
+
+
 
