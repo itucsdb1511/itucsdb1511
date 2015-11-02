@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Home</title>
+    <style>
+        .header{
+        float:left;padding:10px;border:1px solid #fff;color:black;background-color:#EFEFEF;text-decoration: none;
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  </head>
+  <body>
+    <div>
+      <a href="/home" class="header">Home</a>
+      <a href="/citylist" class="header">Event City List</a>
+      <a href="/riderlist" class="header">Rider List</a>
+      <a href="" class="header">Don't Click</a>
+      <a href="" class="header">Don't Click</a>
+      </div>
+      <div style="clear:both;"></div>
+ 	{% block content %}{% endblock %}
+
+    <footer class="footer">
+  <p class="footer_content">
+  	<span><a href="">Contact us</a></span>
+  	<div id="datetime">{{ current_time }}</div>
+  </p>
+</footer>
+
+
+
+  </body>
+</html>
