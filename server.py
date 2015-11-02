@@ -92,7 +92,47 @@ def addcity():
                 return "error happened"
         return redirect(url_for('citylist'))
     return render_template('addcity.html')
+    
+    
+@app.route('/playerlist')
+def playerlist():
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT Player_ID, Player_Name FROM Player ORDER BY Player_ID"""
+        cursor.execute(statement)
+        for Player_ID, Player_Name in cursor:
+            retval += "Player_ID = {0} and Player_Name = {1} <br>".format(Player_ID,Player_Name)
+    return retval
 
+@app.route('/playerdelete/<id>')
+def playerdelete(id):
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        statement = """DELETE FROM Player WHERE Player_ID={0}"""
+        cursor.execute(statement.format(id))
+        connection.commit()
+    return redirect(url_for('playerlist'))
+
+@app.route('/addplayer', methods=['POST', 'GET'])
+def addplayer():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+
+            ID = request.form['ID']
+            Name = request.form['Name']
+
+            query = """CREATE TABLE IF NOT EXISTS Player ( Player_ID INT PRIMARY KEY NOT NULL, Player_Name CHAR(50) NOT NULL    );"""
+            cursor.execute(query)
+            try:
+                queryWithFormat = """INSERT INTO Player (Player_ID, Player_Name) VALUES (%s, %s)"""
+                cursor.execute(queryWithFormat, (ID, Name))
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('playerlist'))
+    return render_template('addplayer.html')
     
 
 @app.route('/initdb')
