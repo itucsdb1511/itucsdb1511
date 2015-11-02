@@ -133,6 +133,46 @@ def addplayer():
                 return "error happened"
         return redirect(url_for('playerlist'))
     return render_template('addplayer.html')
+
+@app.route('/tournamentlist')
+def tournamentlist():
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT Tournament_ID, Tournament_Name FROM Tournament ORDER BY Tournament_ID"""
+        cursor.execute(statement)
+        for Tournament_ID, Tournament_Name in cursor:
+            retval += "Tournament_ID = {0} and Tournament_Name = {1} <br>".format(Tournament_ID,Tournament_Name)
+    return retval
+
+@app.route('/tournamentdelete/<id>')
+def tournamentdelete(id):
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        statement = """DELETE FROM Tournament WHERE Tournament_ID={0}"""
+        cursor.execute(statement.format(id))
+        connection.commit()
+    return redirect(url_for('tournamentlist'))
+
+@app.route('/addtournament', methods=['POST', 'GET'])
+def addtournament():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+
+            ID = request.form['ID']
+            Name = request.form['Name']
+
+            query = """CREATE TABLE IF NOT EXISTS Tournament ( Tournament_ID INT PRIMARY KEY NOT NULL, Tournament_Name CHAR(50) NOT NULL    );"""
+            cursor.execute(query)
+            try:
+                queryWithFormat = """INSERT INTO Tournament (Tournament_ID, Tournament_Name) VALUES (%s, %s)"""
+                cursor.execute(queryWithFormat, (ID, Name))
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('tournamentlist'))
+    return render_template('addtournament.html')
     
 
 @app.route('/initdb')
