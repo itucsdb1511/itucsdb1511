@@ -5,9 +5,16 @@ import psycopg2 as dbapi2
 import re
 
 from flask import Flask
+from flask import request
 from flask import redirect
 from flask import render_template
 from flask.helpers import url_for
+import psycopg2
+
+class City:
+        def __init__(self, ID, Name):
+            self.ID = ID
+            self.Name = Name
 
 
 app = Flask(__name__)
@@ -43,6 +50,53 @@ def riderlist():
 def home2():
     now = datetime.datetime.now()
     return render_template('home.html', current_time=now.ctime())
+
+@app.route('/citylist')
+def citylist():
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT City_ID, City_Name FROM City ORDER BY City_ID"""
+        cursor.execute(statement)
+        for City_ID, City_Name in cursor:
+            retval += "City_ID = {0} and City_Name = {1} <br>".format(City_ID,City_Name)
+    return retval
+
+@app.route('/citydelete/<id>')
+def citydelete(id):
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        statement = """DELETE FROM City WHERE City_ID={0}"""
+        cursor.execute(statement.format(id))
+        connection.commit()
+    return redirect(url_for('citylist'))
+
+@app.route('/addcity', methods=['POST', 'GET'])
+def addcity():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+
+            ID = request.form['ID']
+            Name = request.form['Name']
+
+            query = """CREATE TABLE IF NOT EXISTS City ( City_ID INT PRIMARY KEY NOT NULL, City_Name CHAR(50) NOT NULL    );"""
+            cursor.execute(query)
+            try:
+                queryWithFormat = """INSERT INTO City (City_ID, City_Name) VALUES (%s, %s)"""
+                cursor.execute(queryWithFormat, (ID, Name))
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('citylist'))
+    return render_template('addcity.html')
+
+    """<script>
+    function deleter(id) {
+        window.location.href("/citydelete/id=" + id);
+    }
+    </script>"""
+
     
 
 @app.route('/initdb')
@@ -58,7 +112,14 @@ def initialize_database():
 
         query = """INSERT INTO COUNTER (N) VALUES (0)"""
         cursor.execute(query)
+        
+        query = """CREATE TABLE IF NOT EXISTS City (
+                                City_ID INT PRIMARY KEY NOT NULL,
+                                City_Name CHAR(50) NOT NULL
+                    );"""
+        cursor.execute(query)
 
+        
         connection.commit()
     return redirect(url_for('home_page'))
 
@@ -76,6 +137,15 @@ def counter_page():
         cursor.execute(query)
         count = cursor.fetchone()[0]
     return "This page was accessed %d times." % count
+@app.route('/city')
+def city_page():
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        query  = "SELECT city_id FROM CITY "
+        cursor.execute(query)
+        count = cursor.fetchone()[0]
+    return "This page was accessed %d times." % count    
+
 
 
 if __name__ == '__main__':
