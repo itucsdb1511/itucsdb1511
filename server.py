@@ -55,6 +55,22 @@ def teamlist():
     return render_template('teamlist.html', team_list=teams)
 
 
+@app.route('/addteam')
+def addteam():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+
+            ID = request.form['ID']
+            Name = request.form['Name']
+            try:
+                queryWithFormat = """INSERT INTO Team (Team_ID, Team_Name) VALUES (%s, %s)"""
+                cursor.execute(queryWithFormat, (ID, Name))
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('teamlist'))
+    return render_template('addteam.html')
 
 @app.route('/riderlist')
 def riderlist():
@@ -77,7 +93,7 @@ def citylist():
         for City_ID,City_Name in cursor:
            city=(City(City_ID,City_Name))
            cities.append(city)
-    return render_template('citylist.html', citylist=teams)
+    return render_template('citylist.html', citylist=cities)
 
 @app.route('/citydelete/<id>')
 def citydelete(id):
