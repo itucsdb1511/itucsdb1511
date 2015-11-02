@@ -58,9 +58,11 @@ def citylist():
         retval = ""
         statement = """SELECT City_ID, City_Name FROM City ORDER BY City_ID"""
         cursor.execute(statement)
-        for City_ID, City_Name in cursor:
-            retval += "City_ID = {0} and City_Name = {1} <br>".format(City_ID,City_Name)
-    return retval
+        cities=[]
+        for City_ID,City_Name in cursor:
+           city=(City(City_ID,City_Name))
+           cities.append(city)
+    return render_template('citylist.html', citylist=cities)
 
 @app.route('/citydelete/<id>')
 def citydelete(id):
@@ -90,12 +92,6 @@ def addcity():
                 return "error happened"
         return redirect(url_for('citylist'))
     return render_template('addcity.html')
-
-    """<script>
-    function deleter(id) {
-        window.location.href("/citydelete/id=" + id);
-    }
-    </script>"""
 
     
 
