@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block title %}Rider List{% endblock %}
+{% block content %}
+	<h2>City List</h2>
+	<style>
+		#tbl tr td,th{
+			padding:5px;
+			text-align: center;
+		}
+	</style>
+
+	<a style="font-weight:Bold" href="{{ url_for('addcity') }}">Add City</a>
+
+	<table border="1" id="tbl">
+	<tr>
+		<th>City Name</th>
+		<th>City ID</th>
+	</tr>
+		{% for city in citylist %}
+			<tr>
+				<td>{{ city.ID }}</td>
+				<td>{{ city.Name }}</td>
+				<td>
+				<a href="{{ url_for('citydelete',id=city.ID) }}">Delete City</a>
+				</td>
+			</tr>
+		{% endfor %}
+	</table>
+{% endblock %}
