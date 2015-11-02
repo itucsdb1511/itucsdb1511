@@ -17,8 +17,14 @@ class City:
             self.Name = Name
 
 
-app = Flask(__name__)
 
+
+class Team:
+    def __init__(self,ID,Name):
+        self.ID = ID
+        self.Name = Name
+
+app = Flask(__name__)
 
 def get_elephantsql_dsn(vcap_services):
     """Returns the data source name for ElephantSQL."""
@@ -38,14 +44,24 @@ def home():
 
 @app.route('/teamlist')
 def teamlist():
-    now = datetime.datetime.now()
-    return render_template('teamlist.html', current_time=now.ctime())
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT Team_ID, Team_Name FROM Team ORDER BY Team_ID"""
+        cursor.execute(statement)
+        teams=[]
+        for Team_ID,Team_Name in cursor:
+           team=(Team(Team_ID,Team_Name))
+           teams.append(team)
+    return render_template('teamlist.html', team_list=teams)
+
+
 
 @app.route('/riderlist')
 def riderlist():
     now = datetime.datetime.now()
     return render_template('riderlist.html', current_time=now.ctime())
-    
+
 @app.route('/home')
 def home2():
     now = datetime.datetime.now()
@@ -56,13 +72,13 @@ def citylist():
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
         retval = ""
-        statement = """SELECT City_ID, City_Name FROM City ORDER BY City_ID"""
+        statement = """SELECT Team_ID, Team_Name FROM Team ORDER BY Team_ID"""
         cursor.execute(statement)
-        cities=[]
-        for City_ID,City_Name in cursor:
-           city=(City(City_ID,City_Name))
-           cities.append(city)
-    return render_template('citylist.html', citylist=cities)
+        teams=[]
+        for Team_ID,Team_Name in cursor:
+           team=(Team(Team_ID,Team_Name))
+           teams.append(city)
+    return render_template('citylist.html', team_list=teams)
 
 @app.route('/citydelete/<id>')
 def citydelete(id):
@@ -92,8 +108,8 @@ def addcity():
                 return "error happened"
         return redirect(url_for('citylist'))
     return render_template('addcity.html')
-    
-    
+
+
 @app.route('/playerlist')
 def playerlist():
     with dbapi2.connect(app.config['dsn']) as connection:
@@ -173,7 +189,7 @@ def addtournament():
                 return "error happened"
         return redirect(url_for('tournamentlist'))
     return render_template('addtournament.html')
-    
+
 
 @app.route('/initdb')
 def initialize_database():
@@ -188,14 +204,14 @@ def initialize_database():
 
         query = """INSERT INTO COUNTER (N) VALUES (0)"""
         cursor.execute(query)
-        
+
         query = """CREATE TABLE IF NOT EXISTS City (
                                 City_ID INT PRIMARY KEY NOT NULL,
                                 City_Name CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
 
-        
+
         connection.commit()
     return redirect(url_for('home_page'))
 
@@ -220,7 +236,7 @@ def city_page():
         query  = "SELECT city_id FROM CITY "
         cursor.execute(query)
         count = cursor.fetchone()[0]
-    return "This page was accessed %d times." % count    
+    return "This page was accessed %d times." % count
 
 
 

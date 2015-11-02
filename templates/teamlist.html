@@ -1,36 +1,17 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Home</title>
-    <style>
-        .header{
-        float:left;padding:10px;border:1px solid #fff;color:black;background-color:#EFEFEF;text-decoration: none;
-        }
-    </style>
-    </head>
-  <body>
-      <div>
-      <a href="/home" class="header">Home</a>
-      <a href="/teamlist" class="header">Team List</a>
-      <a href="/riderlist" class="header">Rider List</a>
-      <a href="" class="header">Don't Click</a>
-      <a href="" class="header">Don't Click</a>
-      </div>
-      <div style="clear:both;"></div>
-     <h2>Team List</h2>
-<ul>
-<li>Astana</li>
-<li>Tinkoff-Saxo</li>
-<li>Lotto-Soudal</li>
-<li>Etixx-QuickStep</li>
-<li>BMC</li>
-<li>Sky</li>
-</ul>  
+{% extends "layout.html" %}
+{% block title %}Team List{% endblock %}
+{% block content %}
+	<h2>City List</h2>
 
-  
-  <footer>
-      <div id="datetime">{{ current_time }}</div>
-  </footer>
-  </body>
-</html>
+	<tr>
+		<th>City Name</th>
+		<th>City ID</th>
+	</tr>
+	{% for team in team_list %}
+		<tr>
+			<td>{{ team.ID }}</td>
+			<td>{{ team.Name }}</td>
+		</tr>
+	{% endfor %}
+
+{% endblock %}
