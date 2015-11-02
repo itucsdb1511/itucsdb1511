@@ -1,30 +1,10 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Home</title>
-    <style>
-        .header{
-        float:left;padding:10px;border:1px solid #fff;color:black;background-color:#EFEFEF;text-decoration: none;
-        }
-    </style>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-  </head>
-  <body>
-    <div>
-      <a href="/home" class="header">Home</a>
-      <a href="/teamlist" class="header">Team List</a>
-      <a href="/riderlist" class="header">Rider List</a>
-      <a href="" class="header">Don't Click</a>
-      <a href="" class="header">Don't Click</a>
-      </div>
-      <div style="clear:both;"></div>
-    <h1>Hello, Flask! from tunahan</h1>
+{% extends "layout.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+   <h1>Add-Delete City in Event City List /tunahan </h1>
     sample texf ismail, alper tarafindan ollusturuldu
-    sample text from cem
+    sample text ffffrom cem
     aut control
-    <footer>
-      <div id="datetime">{{ current_time }}</div>
-    </footer>
-  </body>
-</html>
+
+
+{% endblock %}
