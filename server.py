@@ -196,7 +196,7 @@ def addteam():
 
             ID = request.form['ID']
             Name = request.form['Name']
-            
+
             query = """CREATE TABLE IF NOT EXISTS Team ( Team_ID INT PRIMARY KEY NOT NULL, Team_Name CHAR(50) NOT NULL    );"""
             cursor.execute(query)
             try:
@@ -207,6 +207,15 @@ def addteam():
                 return "error happened"
         return redirect(url_for('teamlist'))
     return render_template('addteam.html')
+
+@app.route('/teamdelete/<id>')
+def teamdelete(id):
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        statement = """DELETE FROM Team WHERE Team_ID={0}"""
+        cursor.execute(statement.format(id))
+        connection.commit()
+    return redirect(url_for('teamlist'))
 
 @app.route('/initdb')
 def initialize_database():
@@ -227,7 +236,7 @@ def initialize_database():
                                 City_Name CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
-        
+
         query = """CREATE TABLE IF NOT EXISTS Team (
                         Team_ID INT PRIMARY KEY NOT NULL,
                         Team_Name CHAR(50) NOT NULL

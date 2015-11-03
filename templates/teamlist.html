@@ -3,15 +3,20 @@
 {% block content %}
 	<h2>Team List</h2>
 
+
+	<a style="font-weight:Bold">Add Team</a>
+
+	<table border="1">
 	<tr>
 		<th>Team Name</th>
 		<th>Team ID</th>
-	</tr>
-	{% for team in team_list %}
-		<tr>
-			<td>{{ team.ID }}</td>
-			<td>{{ team.Name }}</td>
-		</tr>
-	{% endfor %}
-
+	</tr><td>
+		{% for team in team_list %}
+			<tr>
+				<td>{{ team.ID }}</td>
+				<td>{{ team.Name }}</td>
+				<td><a href="{{ url_for('teamdelete',id=team.ID) }}">Delete Team</a></td>
+			</tr><td>
+		{% endfor %}
+	</td></td></table>
 {% endblock %}
