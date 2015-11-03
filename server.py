@@ -4,6 +4,8 @@ import os
 import psycopg2 as dbapi2
 import re
 
+
+
 from flask import Flask
 from flask import request
 from flask import redirect
@@ -17,14 +19,24 @@ class City:
             self.Name = Name
 
 
-
-
 class Team:
     def __init__(self,ID,Name):
         self.ID = ID
         self.Name = Name
 
+class Player:
+    def __init__(self,ID,Name):
+        self.ID = ID
+        self.Name = Name
+
 app = Flask(__name__)
+
+
+def connect_db():
+    conn = psycopg2.connect(app.config['dsn'])
+    cursor = conn.cursor()
+    return conn, cursor
+
 def get_elephantsql_dsn(vcap_services):
     """Returns the data source name for ElephantSQL."""
     parsed = json.loads(vcap_services)
@@ -37,9 +49,10 @@ def get_elephantsql_dsn(vcap_services):
 
 
 @app.route('/')
-def home():
+def home_page():
     now = datetime.datetime.now()
     return render_template('home.html', current_time=now.ctime())
+
 
 @app.route('/riderlist')
 def riderlist():
@@ -50,6 +63,9 @@ def riderlist():
 def home2():
     now = datetime.datetime.now()
     return render_template('home.html', current_time=now.ctime())
+
+
+#----------------------------------------------section city------------------------------
 
 @app.route('/citylist')
 def citylist():
@@ -93,17 +109,25 @@ def addcity():
         return redirect(url_for('citylist'))
     return render_template('addcity.html')
 
+    """<script>
+    function deleter(id) {
+        window.location.href("/citydelete/id=" + id);
+    }
+    </script>"""
+
+#----------------------------------------------section player------------------------------
 
 @app.route('/playerlist')
 def playerlist():
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
-        retval = ""
+        players = []
         statement = """SELECT Player_ID, Player_Name FROM Player ORDER BY Player_ID"""
         cursor.execute(statement)
         for Player_ID, Player_Name in cursor:
-            retval += "Player_ID = {0} and Player_Name = {1} <br>".format(Player_ID,Player_Name)
-    return retval
+            player = Player(Player_ID,Player_Name)
+            players.append(player)
+    return render_template('playerlist.html', Players = players)
 
 @app.route('/playerdelete/<id>')
 def playerdelete(id):
@@ -133,6 +157,8 @@ def addplayer():
                 return "error happened"
         return redirect(url_for('playerlist'))
     return render_template('addplayer.html')
+
+#----------------------------------------------section tournament------------------------------
 
 @app.route('/tournamentlist')
 def tournamentlist():
@@ -174,6 +200,8 @@ def addtournament():
         return redirect(url_for('tournamentlist'))
     return render_template('addtournament.html')
 
+
+
 @app.route('/teamlist')
 def teamlist():
     with dbapi2.connect(app.config['dsn']) as connection:
@@ -211,11 +239,13 @@ def addteam():
 @app.route('/teamdelete/<id>')
 def teamdelete(id):
     with dbapi2.connect(app.config['dsn']) as connection:
-        cursor = connection.cursor()
-        statement = """DELETE FROM Team WHERE Team_ID={0}"""
-        cursor.execute(statement.format(id))
-        connection.commit()
+            cursor = connection.cursor()
+            statement = """DELETE FROM Team WHERE Team_ID={0}"""
+            cursor.execute(statement.format(id))
+            connection.commit()
     return redirect(url_for('teamlist'))
+
+
 
 @app.route('/initdb')
 def initialize_database():
@@ -237,9 +267,21 @@ def initialize_database():
                     );"""
         cursor.execute(query)
 
+        query = """CREATE TABLE IF NOT EXISTS Player (
+                                Player_ID INT PRIMARY KEY NOT NULL,
+                                Player_Name CHAR(50) NOT NULL
+                    );"""
+        cursor.execute(query)
+
+        query = """CREATE TABLE IF NOT EXISTS Tournament (
+                                Tournament_ID INT PRIMARY KEY NOT NULL,
+                                Tournament_Name CHAR(50) NOT NULL
+                    );"""
+        cursor.execute(query)
+
         query = """CREATE TABLE IF NOT EXISTS Team (
-                        Team_ID INT PRIMARY KEY NOT NULL,
-                        Team_Name CHAR(50) NOT NULL
+                                Team_ID INT PRIMARY KEY NOT NULL,
+                                Team_Name CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
 
@@ -260,6 +302,7 @@ def counter_page():
         cursor.execute(query)
         count = cursor.fetchone()[0]
     return "This page was accessed %d times." % count
+
 @app.route('/city')
 def city_page():
     with dbapi2.connect(app.config['dsn']) as connection:
