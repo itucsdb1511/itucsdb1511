@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block title %}Player List{% endblock %}
+{% block content %}
+	<h2>Player List</h2>
+	<style>
+		#tbl tr td,th{
+			padding:5px;
+			text-align: center;
+		}
+	</style>
+
+	<a style="font-weight:Bold" href="{{ url_for('addplayer') }}">Add player</a>
+
+	<table border="1" id="tbl">
+	<tr>
+		<th>Player Name</th>
+		<th>Player ID</th>
+	</tr>
+		{% for player in Players %}
+			<tr>
+				<td>{{ player.ID }}</td>
+				<td>{{ player.Name }}</td>
+				<td>
+				<a href="{{ url_for('playerdelete',id = player.ID) }}">Delete player</a>
+				</td>
+			</tr>
+		{% endfor %}
+	</table>
+{% endblock %}
