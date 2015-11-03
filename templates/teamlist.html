@@ -2,11 +2,16 @@
 {% block title %}Team List{% endblock %}
 {% block content %}
 	<h2>Team List</h2>
+	<style>
+		#tbl tr td,th{
+			padding:5px;
+			text-align: center;
+		}
+	</style>
 
+	<a style="font-weight:Bold" href="{{ url_for('addteam') }}">Add Team</a>
 
-	<a style="font-weight:Bold">Add Team</a>
-
-	<table border="1">
+	<table border="1" id="tbl">
 	<tr>
 		<th>Team Name</th>
 		<th>Team ID</th>
