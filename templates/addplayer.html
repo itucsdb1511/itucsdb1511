@@ -1,6 +1,11 @@
+{% extends "layout.html" %}
+{% block title %}City Add{% endblock %}
+{% block content %}
+
  <form action="/addplayer" method="post">
   Player_ID: <input type="text" name="ID"><br>
   Player_Name: <input type="text" name="Name"><br>
   <input type="submit" value="Submit">
 </form>
 
+{% endblock %}
