@@ -41,37 +41,6 @@ def home():
     now = datetime.datetime.now()
     return render_template('home.html', current_time=now.ctime())
 
-@app.route('/teamlist')
-def teamlist():
-    with dbapi2.connect(app.config['dsn']) as connection:
-        cursor = connection.cursor()
-        retval = ""
-        statement = """SELECT Team_ID, Team_Name FROM Team ORDER BY Team_ID"""
-        cursor.execute(statement)
-        teams=[]
-        for Team_ID,Team_Name in cursor:
-           team=(Team(Team_ID,Team_Name))
-           teams.append(team)
-    return render_template('teamlist.html', team_list=teams)
-
-
-@app.route('/addteam')
-def addteam():
-    if request.method == 'POST':
-        with dbapi2.connect(app.config['dsn']) as connection:
-            cursor = connection.cursor()
-
-            ID = request.form['ID']
-            Name = request.form['Name']
-            try:
-                queryWithFormat = """INSERT INTO Team (Team_ID, Team_Name) VALUES (%s, %s)"""
-                cursor.execute(queryWithFormat, (ID, Name))
-            except dbapi2.DatabaseError:
-                connection.rollback()
-                return "error happened"
-        return redirect(url_for('teamlist'))
-    return render_template('addteam.html')
-
 @app.route('/riderlist')
 def riderlist():
     now = datetime.datetime.now()
@@ -205,6 +174,39 @@ def addtournament():
         return redirect(url_for('tournamentlist'))
     return render_template('addtournament.html')
 
+@app.route('/teamlist')
+def teamlist():
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT Team_ID, Team_Name FROM Team ORDER BY Team_ID"""
+        cursor.execute(statement)
+        teams=[]
+        for Team_ID,Team_Name in cursor:
+           team=(Team(Team_ID,Team_Name))
+           teams.append(team)
+    return render_template('teamlist.html', team_list=teams)
+
+
+@app.route('/addteam', methods=['POST', 'GET'])
+def addteam():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+
+            ID = request.form['ID']
+            Name = request.form['Name']
+            
+            query = """CREATE TABLE IF NOT EXISTS Team ( Team_ID INT PRIMARY KEY NOT NULL, Team_Name CHAR(50) NOT NULL    );"""
+            cursor.execute(query)
+            try:
+                queryWithFormat = """INSERT INTO Team (Team_ID, Team_Name) VALUES (%s, %s)"""
+                cursor.execute(queryWithFormat, (ID, Name))
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('teamlist'))
+    return render_template('addteam.html')
 
 @app.route('/initdb')
 def initialize_database():
@@ -225,7 +227,12 @@ def initialize_database():
                                 City_Name CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
-
+        
+        query = """CREATE TABLE IF NOT EXISTS Team (
+                        Team_ID INT PRIMARY KEY NOT NULL,
+                        Team_Name CHAR(50) NOT NULL
+                    );"""
+        cursor.execute(query)
 
         connection.commit()
     return redirect(url_for('home_page'))
