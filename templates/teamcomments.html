@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+{% block title %}Comments{% endblock %}
+{% block content %}
+	<h2>Comments for Team {{ID}}</h2>
+	<style>
+		#tbl tr td,th{
+			padding:5px;
+			text-align: center;
+		}
+	</style>
+
+	<!-- <a style="font-weight:Bold" href="{{ url_for('addteam') }}">Add Comments</a> -->
+
+	<table border="1" id="tbl">
+	<tr>
+		<th>Comment ID</th>
+		<th>Comment</th>
+	</tr><td>
+		{% for comment in commentlist %}
+			<tr>
+				<td>{{ comment.ID }}</td>
+			</tr>
+
+			<tr>
+				<td> {{ comment.Text}} </td>
+			</tr>
+
+		{% endfor %}
+	</td></td></table>
+{% endblock %}
