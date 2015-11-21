@@ -297,14 +297,15 @@ def teamcomments(id):
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
         retval = ""
-        #statement = """SELECT Team_ID, Team_Name FROM Team ORDER BY Team_ID"""
-        #cursor.execute(statement)
+        statement = """SELECT Team_Comment_ID, Team_Comment_Text
+                        FROM Team_Comments WHERE Team_ID=%s
+                        ORDER BY Team_Comment_ID""" % (id)
+        cursor.execute(statement)
         comments=[]
-        #for Team_ID,Team_Name in cursor:
-        #   team=(Team(Team_ID,Team_Name))
-        #   teams.append(team)
+        for Team_Comment_ID,Team_Comment_Text in cursor:
+           comment=(Team(Team_Comment_ID_ID,Team_Comment_Text))
+           comments.append(comment)
     return render_template('teamcomments.html', ID=id ,commentlist=comments)
-
 
 @app.route('/initdb')
 def initialize_database():
@@ -341,6 +342,13 @@ def initialize_database():
         query = """CREATE TABLE IF NOT EXISTS Team (
                                 Team_ID INT PRIMARY KEY NOT NULL,
                                 Team_Name CHAR(50) NOT NULL
+                    );"""
+        cursor.execute(query)
+
+        query = """CREATE TABLE IF NOT EXISTS Team_Comments (
+                                Team_Comment_ID INT PRIMARY KEY NOT NULL,
+                                Team_ID INTEGER REFERENCES Team(Team_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                Team_Comment_Text CHAR(500) NOT NULL
                     );"""
         cursor.execute(query)
 
