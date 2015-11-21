@@ -22,6 +22,7 @@
 				<td>{{ tournament.Name }}</td>
 				<td>
 				<a href="{{ url_for('tournamentdelete',id=tournament.ID) }}">Delete Tournament</a>
+				<a href="{{ url_for('updatetournament',id=tournament.ID) }}">Update Tournament</a>
 				</td>
 			</tr>
 		{% endfor %}
