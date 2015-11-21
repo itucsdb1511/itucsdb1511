@@ -29,6 +29,12 @@ class Player:
         self.ID = ID
         self.Name = Name
 
+class Tournament:
+    def __init__(self,ID,Name):
+        self.ID = ID
+        self.Name = Name
+
+
 app = Flask(__name__)
 
 
@@ -167,9 +173,11 @@ def tournamentlist():
         retval = ""
         statement = """SELECT Tournament_ID, Tournament_Name FROM Tournament ORDER BY Tournament_ID"""
         cursor.execute(statement)
+        tournaments = []
         for Tournament_ID, Tournament_Name in cursor:
-            retval += "Tournament_ID = {0} and Tournament_Name = {1} <br>".format(Tournament_ID,Tournament_Name)
-    return retval
+            tournament=(Tournament(Tournament_ID, Tournament_Name))
+            tournaments.append(tournament)
+    return render_template('tournamentlist.html', tournamentlist=tournaments)
 
 @app.route('/tournamentdelete/<id>')
 def tournamentdelete(id):
