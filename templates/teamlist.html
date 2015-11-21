@@ -22,6 +22,7 @@
 				<td>{{ team.Name }}</td>
 				<td><a href="{{ url_for('teamdelete',id=team.ID) }}">Delete Team</a></td>
 				<td><a href="{{ url_for('updateteam',id=team.ID) }}">Update Team</a></td>
+				<td><a href="{{ url_for('teamcomments',id=team.ID) }}">Team Comments</a></td>
 			</tr><td>
 		{% endfor %}
 	</td></td></table>

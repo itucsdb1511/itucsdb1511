@@ -34,6 +34,10 @@ class Tournament:
         self.ID = ID
         self.Name = Name
 
+class Comment:
+    def __init__(self,ID,Text):
+        self.ID = ID
+        self.Text = Text
 
 app = Flask(__name__)
 
@@ -287,6 +291,20 @@ def updateteam(id):
                 return "error happened"
         return redirect(url_for('teamlist'))
     return render_template('updateteam.html', ID=id)
+
+@app.route('/teamcomments/<id>')
+def teamcomments(id):
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        #statement = """SELECT Team_ID, Team_Name FROM Team ORDER BY Team_ID"""
+        #cursor.execute(statement)
+        comments=[]
+        #for Team_ID,Team_Name in cursor:
+        #   team=(Team(Team_ID,Team_Name))
+        #   teams.append(team)
+    return render_template('teamcomments.html', ID=id ,commentlist=comments)
+
 
 @app.route('/initdb')
 def initialize_database():
