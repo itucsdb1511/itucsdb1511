@@ -303,9 +303,28 @@ def teamcomments(id):
         cursor.execute(statement)
         comments=[]
         for Team_Comment_ID,Team_Comment_Text in cursor:
-           comment=(Team(Team_Comment_ID_ID,Team_Comment_Text))
+           comment=(Team(Team_Comment_ID,Team_Comment_Text))
            comments.append(comment)
     return render_template('teamcomments.html', ID=id ,commentlist=comments)
+
+@app.route('/addteamcomment', methods=['POST', 'GET'])
+def addteamcomment():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            Comment_ID = request.form['Comment_ID']
+            Text = request.form['Text']
+            Team_ID = request.form['Team_ID']
+            try:
+                query = """INSERT INTO Team_Comments (Team_Comment_ID, Team_ID, Team_Comment_Text)
+                    VALUES (%s, %s, %s)"""
+                cursor.execute(query, (Comment_ID, Team_ID, Text))
+                connection.commit()
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('teamlist'))
+    return render_template('teamcomments.html', ID=Team_ID)
 
 @app.route('/initdb')
 def initialize_database():

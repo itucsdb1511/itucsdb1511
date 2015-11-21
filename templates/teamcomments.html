@@ -9,22 +9,25 @@
 		}
 	</style>
 
-
+ 	<form action="/addteamcomment" method="post">
+	Comment ID: <input type="text" name="Comment_ID"><br>
+  	Text: <input type="text" name="Text"><br>
+  	<input type="hidden" name="Team_ID" value="{{ID}}">
+  	<input type="submit" value="Submit">
+  	</form>
 
 	<table border="1" id="tbl">
-	<tr>
-		<th>Comment ID</th>
-		<th>Comment</th>
-	</tr><td>
-		{% for comment in commentlist %}
-			<tr>
-				<td>{{ comment.ID }}</td>
-			</tr>
+		<tr>
+			<th>Comment ID</th>
+			<th>Comment</th>
+		</tr>
 
+		{% for comm in commentlist %}
 			<tr>
-				<td> {{ comment.Text}} </td>
+				<td>{{ comm.ID }}</td>
+				<td>{{ comm.Text }}</td>
 			</tr>
-
 		{% endfor %}
-	</td></td></table>
+
+	</table>
 {% endblock %}
