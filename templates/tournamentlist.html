@@ -21,9 +21,10 @@
 				<td>{{ tournament.ID }}</td>
 				<td>{{ tournament.Name }}</td>
 				<td>
-				<a href="{{ url_for('tournamentdelete',id=tournament.ID) }}">Delete Tournament</a>
-				<a href="{{ url_for('updatetournament',id=tournament.ID) }}">Update Tournament</a>
-				</td>
+				<a href="{{ url_for('tournamentdelete',id=tournament.ID) }}">Delete Tournament</a></td>
+				<td><a href="{{ url_for('updatetournament',id=tournament.ID) }}">Update Tournament</a></td>
+				<td><a href="{{ url_for('tournamentcomments',id=tournament.ID) }}">Tournament Comments</a></td>
+
 			</tr>
 		{% endfor %}
 	</table>
