@@ -13,14 +13,15 @@
 
 	<table border="1" id="tbl">
 	<tr>
-		<th>Team Name</th>
 		<th>Team ID</th>
+		<th>Team Name</th>
 	</tr><td>
 		{% for team in team_list %}
 			<tr>
 				<td>{{ team.ID }}</td>
 				<td>{{ team.Name }}</td>
 				<td><a href="{{ url_for('teamdelete',id=team.ID) }}">Delete Team</a></td>
+				<td><a href="{{ url_for('updateteam',id=team.ID) }}">Update Team</a></td>
 			</tr><td>
 		{% endfor %}
 	</td></td></table>

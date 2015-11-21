@@ -201,7 +201,7 @@ def addtournament():
     return render_template('addtournament.html')
 
 
-
+#----------------------------------------------section tournament------------------------------
 @app.route('/teamlist')
 def teamlist():
     with dbapi2.connect(app.config['dsn']) as connection:
@@ -230,6 +230,7 @@ def addteam():
             try:
                 queryWithFormat = """INSERT INTO Team (Team_ID, Team_Name) VALUES (%s, %s)"""
                 cursor.execute(queryWithFormat, (ID, Name))
+                connection.commit()
             except dbapi2.DatabaseError:
                 connection.rollback()
                 return "error happened"
@@ -245,7 +246,23 @@ def teamdelete(id):
             connection.commit()
     return redirect(url_for('teamlist'))
 
+@app.route('/updateteam/<id>', methods=['POST', 'GET'])
+def updateteam(id):
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
 
+            New_Name = request.form['Name']
+
+            try:
+                query = """UPDATE Team SET Team_Name='%s' WHERE Team_ID='%s' """ % (New_Name, id)
+                cursor.execute(query)
+                connection.commit()
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('teamlist'))
+    return render_template('updateteam.html', ID=id)
 
 @app.route('/initdb')
 def initialize_database():
