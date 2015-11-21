@@ -227,9 +227,43 @@ def updatetournament(id):
                 return "error happened"
         return redirect(url_for('tournamentlist'))
     return render_template('updatetournament.html', ID=id)
+    
+@app.route('/tournamentcomments/<id>')
+def tournamentcomments(id):
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT Tournament_Comment_ID, Tournament_Comment_Text
+                        FROM Tournament_Comments WHERE Tournament_ID=%s
+                        ORDER BY Tournament_Comment_ID""" % (id)
+        cursor.execute(statement)
+        comments=[]
+        for Tournament_Comment_ID,Tournament_Comment_Text in cursor:
+           comment=(Tournament(Tournament_Comment_ID,Tournament_Comment_Text))
+           comments.append(comment)
+    return render_template('tournamentcomments.html', ID=id ,commentlist=comments)
+
+@app.route('/addtournamentcomment', methods=['POST', 'GET'])
+def addtournamentcomment():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            Comment_ID = request.form['Comment_ID']
+            Text = request.form['Text']
+            Tournament_ID = request.form['Tournament_ID']
+            try:
+                query = """INSERT INTO Tournament_Comments (Tournament_Comment_ID, Tournament_ID, Tournament_Comment_Text)
+                    VALUES (%s, %s, %s)"""
+                cursor.execute(query, (Comment_ID, Tournament_ID, Text))
+                connection.commit()
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('tournamentlist'))
+    return render_template('tournamentcomments.html', ID=Tournament_ID)
 
 
-#----------------------------------------------section tournament------------------------------
+#----------------------------------------------section team------------------------------
 @app.route('/teamlist')
 def teamlist():
     with dbapi2.connect(app.config['dsn']) as connection:
@@ -368,6 +402,13 @@ def initialize_database():
                                 Team_Comment_ID INT PRIMARY KEY NOT NULL,
                                 Team_ID INTEGER REFERENCES Team(Team_ID) ON DELETE CASCADE ON UPDATE CASCADE,
                                 Team_Comment_Text CHAR(500) NOT NULL
+                    );"""
+        cursor.execute(query)
+        
+        query = """CREATE TABLE IF NOT EXISTS Tournament_Comments (
+                                Tournament_Comment_ID INT PRIMARY KEY NOT NULL,
+                                Tournament_ID INTEGER REFERENCES Tournament(Tournament_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                Tournament_Comment_Text CHAR(500) NOT NULL
                     );"""
         cursor.execute(query)
 
