@@ -208,6 +208,22 @@ def addtournament():
         return redirect(url_for('tournamentlist'))
     return render_template('addtournament.html')
 
+@app.route('/updatetournament/<id>', methods=['POST', 'GET'])
+def updatetournament(id):
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            New_Name = request.form['Name']
+            try:
+                query = """UPDATE Tournament SET Tournament_Name='%s' WHERE Tournament_ID='%s' """ % (New_Name, id)
+                cursor.execute(query)
+                connection.commit()
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('tournamentlist'))
+    return render_template('updatetournament.html', ID=id)
+
 
 #----------------------------------------------section tournament------------------------------
 @app.route('/teamlist')
