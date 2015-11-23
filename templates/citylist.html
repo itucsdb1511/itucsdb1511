@@ -1,5 +1,5 @@
 {% extends "layout.html" %}
-{% block title %}Rider List{% endblock %}
+{% block title %}City List{% endblock %}
 {% block content %}
 	<h2>City List</h2>
 	<style>
@@ -10,11 +10,12 @@
 	</style>
 
 	<a style="font-weight:Bold" href="{{ url_for('addcity') }}">Add City</a>
+	<a style="font-weight:Bold" href="{{ url_for('searchcity') }}">Search City</a>
 
 	<table border="1" id="tbl">
 	<tr>
-		<th>City Name</th>
 		<th>City ID</th>
+		<th>City Name</th>
 	</tr>
 		{% for city in citylist %}
 			<tr>
@@ -22,6 +23,9 @@
 				<td>{{ city.Name }}</td>
 				<td>
 				<a href="{{ url_for('citydelete',id=city.ID) }}">Delete City</a>
+				</td>
+				<td>
+				<a href="{{ url_for('updatecity',id=city.ID) }}">Update City</a>
 				</td>
 			</tr>
 		{% endfor %}
