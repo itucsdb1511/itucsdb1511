@@ -5,3 +5,5 @@ Connection between bluemix and github
 Create City table
 Add-Delete City table
 Show the city list 
+Search for city list added
+Update for city list added 
