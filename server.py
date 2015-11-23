@@ -120,7 +120,7 @@ def addcity():
     return render_template('addcity.html')
     
     
-    @app.route('/updatecity/<id>', methods=['POST', 'GET'])
+@app.route('/updatecity/<id>', methods=['POST', 'GET'])
 def updatecity(id):
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
