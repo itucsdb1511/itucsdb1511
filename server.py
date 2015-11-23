@@ -39,6 +39,12 @@ class Comment:
         self.ID = ID
         self.Text = Text
 
+class Country:
+        def __init__(self, ID, Name):
+            self.ID = ID
+            self.Name = Name        
+        
+
 app = Flask(__name__)
 
 
@@ -396,6 +402,90 @@ def addteamcomment():
                 return "error happened"
         return redirect(url_for('teamlist'))
     return render_template('teamcomments.html', ID=Team_ID)
+    
+    
+#----------------------------------------------section country------------------------------
+
+@app.route('/countrylist')
+def countrylist():
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT Country_ID, Country_Name FROM Country ORDER BY Country_ID"""
+        cursor.execute(statement)
+        countries=[]
+        for Country_ID,Country_Name in cursor:
+           country=(Country(Country_ID,Country_Name))
+           countries.append(country)
+    return render_template('countrylist.html', countrylist=countries)
+
+@app.route('/countrydelete/<id>')
+def countrydelete(id):
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        statement = """DELETE FROM Country WHERE Country_ID={0}"""
+        cursor.execute(statement.format(id))
+        connection.commit()
+    return redirect(url_for('countrylist'))
+
+@app.route('/addcountry', methods=['POST', 'GET'])
+def addcountry():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+
+            ID = request.form['ID']
+            Name = request.form['Name']
+
+            query = """CREATE TABLE IF NOT EXISTS Country ( Country_ID INT PRIMARY KEY NOT NULL, Country_Name CHAR(50) NOT NULL    );"""
+            cursor.execute(query)
+            try:
+                queryWithFormat = """INSERT INTO Country (Country_ID, Country_Name) VALUES (%s, %s)"""
+                cursor.execute(queryWithFormat, (ID, Name))
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('countrylist'))
+    return render_template('addcountry.html')
+
+@app.route('/updatecountry/<id>', methods=['POST', 'GET'])
+def updatecountry(id):
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            New_Name = request.form['Name']
+            try:
+                query = """UPDATE Country SET Country_Name='%s' WHERE Country_ID='%s' """ % (New_Name, id)
+                cursor.execute(query)
+                connection.commit()
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('countrylist'))
+    return render_template('updatecountry.html', ID=id)
+
+@app.route('/searchcountry', methods=['POST', 'GET'])
+def searchcountry():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            textstr = request.form['textstr']
+            countries = []
+            try:
+                query = """SELECT Country_ID, Country_Name FROM Country WHERE Country_Name like '%{0}%'"""
+                cursor.execute(query.format(textstr))
+                for Country_ID, Country_Name in cursor:
+                    country = Country(Country_ID,Country_Name)
+                    countries.append(country)
+                return render_template('countrylist.html', countrylist = countries)
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return "eeeee"
+    return render_template('searchcountry.html')
+
+
+
 
 @app.route('/initdb')
 def initialize_database():
@@ -446,6 +536,13 @@ def initialize_database():
                                 Tournament_Comment_ID INT PRIMARY KEY NOT NULL,
                                 Tournament_ID INTEGER REFERENCES Tournament(Tournament_ID) ON DELETE CASCADE ON UPDATE CASCADE,
                                 Tournament_Comment_Text CHAR(500) NOT NULL
+                    );"""
+        cursor.execute(query)
+        
+        
+        query = """CREATE TABLE IF NOT EXISTS Country (
+                                Country_ID INT PRIMARY KEY NOT NULL,
+                                Country_Name CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
 
