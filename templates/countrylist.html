@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+{% block title %}Country List{% endblock %}
+{% block content %}
+	<h2>Country List</h2>
+	<style>
+		#tbl tr td,th{
+			padding:5px;
+			text-align: center;
+		}
+	</style>
+
+	<a style="font-weight:Bold" href="{{ url_for('addcountry') }}">Add Country</a>
+	<a style="font-weight:Bold" href="{{ url_for('searchcountry') }}">Search Country</a>
+
+	<table border="1" id="tbl">
+	<tr>
+		<th>Country ID</th>
+		<th>Country Name</th>
+	</tr>
+		{% for country in countrylist %}
+			<tr>
+				<td>{{ country.ID }}</td>
+				<td>{{ country.Name }}</td>
+				<td>
+				<a href="{{ url_for('countrydelete',id=country.ID) }}">Delete Country</a>
+				</td>
+				<td>
+				<a href="{{ url_for('updatecountry',id=country.ID) }}">Update Country</a>
+				</td>
+			</tr>
+		{% endfor %}
+	</table>
+{% endblock %}
