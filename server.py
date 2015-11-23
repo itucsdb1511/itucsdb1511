@@ -118,6 +118,43 @@ def addcity():
                 return "error happened"
         return redirect(url_for('citylist'))
     return render_template('addcity.html')
+    
+    
+    @app.route('/updatecity/<id>', methods=['POST', 'GET'])
+def updatecity(id):
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            New_Name = request.form['Name']
+            try:
+                query = """UPDATE City SET City_Name='%s' WHERE City_ID='%s' """ % (New_Name, id)
+                cursor.execute(query)
+                connection.commit()
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('citylist'))
+    return render_template('updatecity.html', ID=id)
+
+@app.route('/searchcity', methods=['POST', 'GET'])
+def searchcity():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            textstr = request.form['textstr']
+            cities = []
+            try:
+                query = """SELECT City_ID, City_Name FROM City WHERE City_Name like '%{0}%'"""
+                cursor.execute(query.format(textstr))
+                for City_ID, City_Name in cursor:
+                    city = City(City_ID,City_Name)
+                    cities.append(city)
+                return render_template('citylist.html', citylist = cities)
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return "eeeee"
+    return render_template('searchcity.html')
 
     """<script>
     function deleter(id) {
