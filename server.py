@@ -182,6 +182,26 @@ def playerlist():
             players.append(player)
     return render_template('playerlist.html', Players = players)
 
+@app.route('/searchplayer', methods=['POST', 'GET'])
+def searchplayer():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            textstr = request.form['textstr']
+            players = []
+            try:
+                query = """SELECT Player_ID, Player_Name FROM Player WHERE Player_Name like '%{0}%'"""
+                cursor.execute(query.format(textstr))
+                for Player_ID, Player_Name in cursor:
+                    player = Player(Player_ID,Player_Name)
+                    players.append(player)
+                return render_template('playerlist.html', Players = players)
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return "eeeee"
+    return render_template('searchplayer.html')
+
 @app.route('/playerdelete/<id>')
 def playerdelete(id):
     with dbapi2.connect(app.config['dsn']) as connection:
@@ -199,17 +219,34 @@ def addplayer():
 
             ID = request.form['ID']
             Name = request.form['Name']
+            TeamID = request.form['TeamID']
 
-            query = """CREATE TABLE IF NOT EXISTS Player ( Player_ID INT PRIMARY KEY NOT NULL, Player_Name CHAR(50) NOT NULL    );"""
+            query = """CREATE TABLE IF NOT EXISTS Player ( Player_ID INT PRIMARY KEY NOT NULL, Player_Name CHAR(50) NOT NULL, Player_TeamID INT REFERENCES Team (Team_ID) );"""
             cursor.execute(query)
             try:
-                queryWithFormat = """INSERT INTO Player (Player_ID, Player_Name) VALUES (%s, %s)"""
-                cursor.execute(queryWithFormat, (ID, Name))
+                queryWithFormat = """INSERT INTO Player (Player_ID, Player_Name, Player_TeamID) VALUES (%s, %s, %s)"""
+                cursor.execute(queryWithFormat, (ID, Name, TeamID))
             except dbapi2.DatabaseError:
                 connection.rollback()
                 return "error happened"
         return redirect(url_for('playerlist'))
     return render_template('addplayer.html')
+
+@app.route('/updateplayer/<id>', methods=['POST', 'GET'])
+def updateplayer(id):
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            New_Name = request.form['Name']
+            try:
+                query = """UPDATE Player SET Player_Name='%s' WHERE Player_ID='%s' """ % (New_Name, id)
+                cursor.execute(query)
+                connection.commit()
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('playerlist'))
+    return render_template('updateplayer.html', ID=id)
 
 #----------------------------------------------section tournament------------------------------
 
@@ -548,9 +585,13 @@ def initialize_database():
                     );"""
         cursor.execute(query)
 
+        query = """DROP TABLE IF EXISTS Player"""
+        cursor.execute(query)
+
         query = """CREATE TABLE IF NOT EXISTS Player (
                                 Player_ID INT PRIMARY KEY NOT NULL,
-                                Player_Name CHAR(50) NOT NULL
+                                Player_Name CHAR(50) NOT NULL,
+                                Player_TeamID INT REFERENCES Team (Team_ID) ON DELETE CASCADE ON UPDATE CASCADE
                     );"""
         cursor.execute(query)
 
