@@ -113,18 +113,18 @@ def addcity():
 
             ID = request.form['ID']
             Name = request.form['Name']
+            CountryID = request.form['CountryID']
 
-            query = """CREATE TABLE IF NOT EXISTS City ( City_ID INT PRIMARY KEY NOT NULL, City_Name CHAR(50) NOT NULL    );"""
+            query = """CREATE TABLE IF NOT EXISTS City ( City_ID INT PRIMARY KEY NOT NULL, City_Name CHAR(50) NOT NULL, City_CountryID INT REFERENCES Country (Country_ID) ON DELETE CASCADE ON UPDATE CASCADE    );"""
             cursor.execute(query)
             try:
-                queryWithFormat = """INSERT INTO City (City_ID, City_Name) VALUES (%s, %s)"""
-                cursor.execute(queryWithFormat, (ID, Name))
+                queryWithFormat = """INSERT INTO City (City_ID, City_Name, City_CountryID) VALUES (%s, %s, %s)"""
+                cursor.execute(queryWithFormat, (ID, Name, CountryID))
             except dbapi2.DatabaseError:
                 connection.rollback()
                 return "error happened"
         return redirect(url_for('citylist'))
     return render_template('addcity.html')
-
 
 @app.route('/updatecity/<id>', methods=['POST', 'GET'])
 def updatecity(id):
@@ -581,7 +581,8 @@ def initialize_database():
 
         query = """CREATE TABLE IF NOT EXISTS City (
                                 City_ID INT PRIMARY KEY NOT NULL,
-                                City_Name CHAR(50) NOT NULL
+                                City_Name CHAR(50) NOT NULL,
+                                City_CountryID INT REFERENCES Country (Country_ID) ON DELETE CASCADE ON UPDATE CASCADE
                     );"""
         cursor.execute(query)
 
