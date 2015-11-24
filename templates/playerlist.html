@@ -10,6 +10,7 @@
 	</style>
 
 	<a style="font-weight:Bold" href="{{ url_for('addplayer') }}">Add player</a>
+	<a style="font-weight:Bold" href="{{ url_for('searchplayer') }}">Search player</a>
 
 	<table border="1" id="tbl">
 	<tr>
@@ -22,6 +23,9 @@
 				<td>{{ player.Name }}</td>
 				<td>
 				<a href="{{ url_for('playerdelete',id = player.ID) }}">Delete player</a>
+				</td>
+				<td>
+				<a href="{{ url_for('updateplayer',id = player.ID) }}">Update player</a>
 				</td>
 			</tr>
 		{% endfor %}
