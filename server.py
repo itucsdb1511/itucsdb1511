@@ -42,8 +42,8 @@ class Comment:
 class Country:
         def __init__(self, ID, Name):
             self.ID = ID
-            self.Name = Name        
-        
+            self.Name = Name
+
 
 app = Flask(__name__)
 
@@ -124,8 +124,8 @@ def addcity():
                 return "error happened"
         return redirect(url_for('citylist'))
     return render_template('addcity.html')
-    
-    
+
+
 @app.route('/updatecity/<id>', methods=['POST', 'GET'])
 def updatecity(id):
     if request.method == 'POST':
@@ -270,7 +270,7 @@ def updatetournament(id):
                 return "error happened"
         return redirect(url_for('tournamentlist'))
     return render_template('updatetournament.html', ID=id)
-    
+
 @app.route('/tournamentcomments/<id>')
 def tournamentcomments(id):
     with dbapi2.connect(app.config['dsn']) as connection:
@@ -402,8 +402,29 @@ def addteamcomment():
                 return "error happened"
         return redirect(url_for('teamlist'))
     return render_template('teamcomments.html', ID=Team_ID)
-    
-    
+
+@app.route('/searchteam', methods=['POST', 'GET'])
+def searchteam():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            textstr = request.form['textstr']
+            teams = []
+            try:
+                query = """SELECT Team_ID, Team_Name FROM Team WHERE Team_Name like '%{0}%'"""
+                cursor.execute(query.format(textstr))
+                for Team_ID, Team_Name in cursor:
+                    team = Team(Team_ID,Team_Name)
+                    teams.append(team)
+                return render_template('teamlist.html', team_list = teams)
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return "eeeee"
+    return render_template('searchteam.html')
+
+
+
 #----------------------------------------------section country------------------------------
 
 @app.route('/countrylist')
@@ -531,15 +552,15 @@ def initialize_database():
                                 Team_Comment_Text CHAR(500) NOT NULL
                     );"""
         cursor.execute(query)
-        
+
         query = """CREATE TABLE IF NOT EXISTS Tournament_Comments (
                                 Tournament_Comment_ID INT PRIMARY KEY NOT NULL,
                                 Tournament_ID INTEGER REFERENCES Tournament(Tournament_ID) ON DELETE CASCADE ON UPDATE CASCADE,
                                 Tournament_Comment_Text CHAR(500) NOT NULL
                     );"""
         cursor.execute(query)
-        
-        
+
+
         query = """CREATE TABLE IF NOT EXISTS Country (
                                 Country_ID INT PRIMARY KEY NOT NULL,
                                 Country_Name CHAR(50) NOT NULL
