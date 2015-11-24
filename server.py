@@ -578,7 +578,10 @@ def initialize_database():
 
         query = """INSERT INTO COUNTER (N) VALUES (0)"""
         cursor.execute(query)
-
+        
+        query = """DROP TABLE IF EXISTS City"""
+        cursor.execute(query)        
+                
         query = """CREATE TABLE IF NOT EXISTS City (
                                 City_ID INT PRIMARY KEY NOT NULL,
                                 City_Name CHAR(50) NOT NULL,
