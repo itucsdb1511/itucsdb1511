@@ -583,6 +583,21 @@ def updateplace(id):
                 return "error happened"
         return redirect(url_for('placelist'))
     return render_template('updateplace.html', ID=id)
+    
+@app.route('/placecomments/<id>')
+def placecomments(id):
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT Place_Comment_ID, Place_Comment_Text
+                        FROM Place_Comments WHERE Place_ID=%s
+                        ORDER BY Place_Comment_ID""" % (id)
+        cursor.execute(statement)
+        comments=[]
+        for Place_Comment_ID,Place_Comment_Text in cursor:
+           comment=(Place(Place_Comment_ID,Place_Comment_Text))
+           comments.append(comment)
+    return render_template('placecomments.html', ID=id ,commentlist=comments)
     #----------------------------------------------------------
 
 
