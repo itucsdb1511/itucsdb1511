@@ -304,6 +304,26 @@ def addtournamentcomment():
                 return "error happened"
         return redirect(url_for('tournamentlist'))
     return render_template('tournamentcomments.html', ID=Tournament_ID)
+    
+@app.route('/searchtournament', methods=['POST', 'GET'])
+def searchtournament():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            textstr = request.form['textstr']
+            tournaments = []
+            try:
+                query = """SELECT Tournament_ID, Tournament_Name FROM Tournament WHERE Tournament_Name like '%{0}%'"""
+                cursor.execute(query.format(textstr))
+                for Tournament_ID, Tournament_Name in cursor:
+                    tournament = Tournament(Tournament_ID,Tournament_Name)
+                    tournaments.append(tournament)
+                return render_template('tournamentlist.html', tournamentlist = tournaments)
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return "eeeee"
+    return render_template('searchtournament.html')
 
 
 #----------------------------------------------section team------------------------------
