@@ -44,7 +44,12 @@ class Country:
             self.ID = ID
             self.Name = Name
 
-
+class Place:
+    def __init__(self,ID,Name):
+        self.ID = ID
+        self.Name = Name
+		
+		
 app = Flask(__name__)
 
 
@@ -561,8 +566,24 @@ def searchcountry():
                 return "error happened"
         return "eeeee"
     return render_template('searchcountry.html')
-
-
+    
+#---------------------place-------------------
+@app.route('/updateplace/<id>', methods=['POST', 'GET'])
+def updateplace(id):
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            New_Name = request.form['Name']
+            try:
+                query = """UPDATE Place SET Place_Name='%s' WHERE Place_ID='%s' """ % (New_Name, id)
+                cursor.execute(query)
+                connection.commit()
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('placelist'))
+    return render_template('updateplace.html', ID=id)
+    #----------------------------------------------------------
 
 
 @app.route('/initdb')
@@ -629,6 +650,12 @@ def initialize_database():
         query = """CREATE TABLE IF NOT EXISTS Country (
                                 Country_ID INT PRIMARY KEY NOT NULL,
                                 Country_Name CHAR(50) NOT NULL
+                    );"""
+        cursor.execute(query)
+        
+        query = """CREATE TABLE IF NOT EXISTS Place (
+                                Place_ID INT PRIMARY KEY NOT NULL,
+                                Place_Name CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
 
