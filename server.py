@@ -147,7 +147,8 @@ def addcity():
             cursor = connection.cursor()
 
             Name = request.form['Name']
-            CountryID = request.form['CountryID']
+            CountryID = request.form['selectedValue']
+
 
             query = """CREATE TABLE IF NOT EXISTS City ( City_ID SERIAL PRIMARY KEY NOT NULL, City_Name CHAR(50) NOT NULL, City_CountryID INT REFERENCES Country (Country_ID) ON DELETE CASCADE ON UPDATE CASCADE    );"""
             cursor.execute(query)
@@ -158,7 +159,16 @@ def addcity():
                 connection.rollback()
                 return "error happened"
         return redirect(url_for('citylist'))
-    return render_template('addcity.html')
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT Country_ID, Country_Name FROM Country ORDER BY Country_ID"""
+        cursor.execute(statement)
+        countries=[]
+        for Country_ID,Country_Name in cursor:
+           country=(Country(Country_ID,Country_Name))
+           countries.append(country)
+    return render_template('addcity.html', Countries = countries)
 
 @app.route('/updatecity/<id>', methods=['POST', 'GET'])
 def updatecity(id):
