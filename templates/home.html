@@ -113,11 +113,11 @@
 					<div class="panel panel-default">
 						<div class="panel-heading">
 							<h4>
-								<span class="glyphicon glyphicon-road" aria-hidden="true"></span> Event
+								<span class="glyphicon glyphicon-road" aria-hidden="true"></span> Tournament
 							</h4>
 						</div>
 						<div class="panel-body">
-							Best Events
+							Best Tournaments
 							<table class="table">
 								<thead>
 									<tr>
@@ -127,21 +127,13 @@
 									</tr>
 								</thead>
 								<tbody>
+									{% for order,tournament,city in Tournament %}
 									<tr>
-										<th scope="row">1</th>
-										<td>Mark</td>
-										<td>@mdo</td>
+										<td>{{ order }}</td>
+										<td>{{ tournament.Name }}</td>
+										<td>{{ city }}</td>
 									</tr>
-									<tr>
-										<th scope="row">2</th>
-										<td>Jacob</td>
-										<td>@fat</td>
-									</tr>
-									<tr>
-										<th scope="row">3</th>
-										<td>Larry</td>
-										<td>@twitter</td>
-									</tr>
+									{% endfor %}
 								</tbody>
 							</table>
 							<a href="#" class="btn btn-default">More</a>
