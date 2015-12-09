@@ -102,16 +102,7 @@ def home_page():
             team = Team(Team_ID,Team_Name)
             teams.append([i,(team),Team_Total_Points,Team_CountryName])
             i = i + 1
-        statement = """SELECT Tournament.Tournament_ID, Tournament.Tournament_Name, City.City_Name as City_Name FROM Tournament INNER JOIN City ON (Tournament.Tournament_City_ID=City.City_ID) ORDER BY Tournament_ID"""
-        cursor.execute(statement)
-        tournaments = []
-        i = 1
-        tempList = cursor.fetchmany(5)
-        for Tournament_ID, Tournament_Name, City_Name in tempList:
-            tournament=(Tournament(Tournament_ID, Tournament_Name))
-            tournaments.append([i,(tournament),City_Name])
-            i = i + 1
-    return render_template('home.html', CityList = cities, PlayerList = players, TeamList = teams, Tournament=tournaments)
+    return render_template('home.html', CityList = cities, PlayerList = players, TeamList = teams)
 
 
 @app.route('/riderlist')
@@ -341,16 +332,15 @@ def addtournament():
 
             ID = request.form['ID']
             Name = request.form['Name']
-            City_ID = request.form['City_ID']
 
-            query = """CREATE TABLE IF NOT EXISTS Tournament ( Tournament_ID INT PRIMARY KEY NOT NULL, Tournament_Name CHAR(50) NOT NULL, Tournament_City_ID INT REFERENCES City (City_ID) ON DELETE CASCADE ON UPDATE CASCADE );"""
+            query = """CREATE TABLE IF NOT EXISTS Tournament ( Tournament_ID INT PRIMARY KEY NOT NULL, Tournament_Name CHAR(50) NOT NULL    );"""
             cursor.execute(query)
             try:
-                queryWithFormat = """INSERT INTO Tournament (Tournament_ID, Tournament_Name, Tournament_City_ID) VALUES (%s, %s, %s)"""
-                cursor.execute(queryWithFormat, (ID, Name, City_ID))
+                queryWithFormat = """INSERT INTO Tournament (Tournament_ID, Tournament_Name) VALUES (%s, %s)"""
+                cursor.execute(queryWithFormat, (ID, Name))
             except dbapi2.DatabaseError:
                 connection.rollback()
-                return City_ID
+                return "error happened"
         return redirect(url_for('tournamentlist'))
     return render_template('addtournament.html')
 
@@ -736,13 +726,9 @@ def initialize_database():
                     );"""
         cursor.execute(query)
 
-        query = """DROP TABLE IF EXISTS Tournament CASCADE"""
-        cursor.execute(query)
-
         query = """CREATE TABLE IF NOT EXISTS Tournament (
                                 Tournament_ID INT PRIMARY KEY NOT NULL,
-                                Tournament_Name CHAR(50) NOT NULL,
-                                Tournament_City_ID INT REFERENCES City (City_ID) ON DELETE CASCADE ON UPDATE CASCADE
+                                Tournament_Name CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
 
