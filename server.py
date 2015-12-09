@@ -71,8 +71,29 @@ def get_elephantsql_dsn(vcap_services):
 
 @app.route('/')
 def home_page():
-    now = datetime.datetime.now()
-    return render_template('home.html', current_time=now.ctime())
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT City.City_ID, City.City_Name, Country.Country_Name as City_CountryName FROM City INNER JOIN Country ON (City.City_CountryID = Country.Country_ID) ORDER BY City.City_Name ASC """
+        cursor.execute(statement)
+        tempList = cursor.fetchmany(5)
+        cities=[]
+        i = 1
+        for City_ID,City_Name,City_CountryName in tempList:
+           city=(City(City_ID,City_Name))
+           country = City_CountryName
+           cities.append([i,(city),country])
+           i = i + 1
+        players = []
+        statement = """SELECT Player.Player_ID, Player.Player_Name, Team.Team_Name as Player_TeamName FROM Player INNER JOIN Team ON (Player.Player_TeamID = Team.Team_ID) ORDER BY Player.Player_Name ASC """
+        cursor.execute(statement)
+        i = 1
+        tempList = cursor.fetchmany(5)
+        for Player_ID, Player_Name, Player_TeamName in tempList:
+            player = Player(Player_ID,Player_Name)
+            players.append([i,(player),Player_TeamName])
+            i = i + 1
+    return render_template('home.html', CityList = cities, PlayerList = players)
 
 
 @app.route('/riderlist')
@@ -221,15 +242,14 @@ def addplayer():
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
 
-            ID = request.form['ID']
             Name = request.form['Name']
             TeamID = request.form['TeamID']
 
-            query = """CREATE TABLE IF NOT EXISTS Player ( Player_ID INT PRIMARY KEY NOT NULL, Player_Name CHAR(50) NOT NULL, Player_TeamID INT REFERENCES Team (Team_ID) );"""
+            query = """CREATE TABLE IF NOT EXISTS Player ( Player_ID SERIAL PRIMARY KEY NOT NULL, Player_Name CHAR(50) NOT NULL, Player_TeamID INT REFERENCES Team (Team_ID) );"""
             cursor.execute(query)
             try:
-                queryWithFormat = """INSERT INTO Player (Player_ID, Player_Name, Player_TeamID) VALUES (%s, %s, %s)"""
-                cursor.execute(queryWithFormat, (ID, Name, TeamID))
+                queryWithFormat = """INSERT INTO Player (Player_Name, Player_TeamID) VALUES (%s, %s)"""
+                cursor.execute(queryWithFormat, (Name, TeamID))
             except dbapi2.DatabaseError:
                 connection.rollback()
                 return "error happened"
@@ -628,7 +648,7 @@ def initialize_database():
         cursor.execute(query)
 
         query = """CREATE TABLE IF NOT EXISTS Player (
-                                Player_ID INT PRIMARY KEY NOT NULL,
+                                Player_ID SERIAL PRIMARY KEY NOT NULL,
                                 Player_Name CHAR(50) NOT NULL,
                                 Player_TeamID INT REFERENCES Team (Team_ID) ON DELETE CASCADE ON UPDATE CASCADE
                     );"""
