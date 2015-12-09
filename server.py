@@ -116,15 +116,14 @@ def addcity():
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
 
-            ID = request.form['ID']
             Name = request.form['Name']
             CountryID = request.form['CountryID']
 
-            query = """CREATE TABLE IF NOT EXISTS City ( City_ID INT PRIMARY KEY NOT NULL, City_Name CHAR(50) NOT NULL, City_CountryID INT REFERENCES Country (Country_ID) ON DELETE CASCADE ON UPDATE CASCADE    );"""
+            query = """CREATE TABLE IF NOT EXISTS City ( City_ID SERIAL PRIMARY KEY NOT NULL, City_Name CHAR(50) NOT NULL, City_CountryID INT REFERENCES Country (Country_ID) ON DELETE CASCADE ON UPDATE CASCADE    );"""
             cursor.execute(query)
             try:
-                queryWithFormat = """INSERT INTO City (City_ID, City_Name, City_CountryID) VALUES (%s, %s, %s)"""
-                cursor.execute(queryWithFormat, (ID, Name, CountryID))
+                queryWithFormat = """INSERT INTO City (City_Name, City_CountryID) VALUES (%s, %s)"""
+                cursor.execute(queryWithFormat, (Name, CountryID))
             except dbapi2.DatabaseError:
                 connection.rollback()
                 return "error happened"
@@ -619,7 +618,7 @@ def initialize_database():
         cursor.execute(query)        
                 
         query = """CREATE TABLE IF NOT EXISTS City (
-                                City_ID INT PRIMARY KEY NOT NULL,
+                                City_ID SERIAL PRIMARY KEY NOT NULL,
                                 City_Name CHAR(50) NOT NULL,
                                 City_CountryID INT REFERENCES Country (Country_ID) ON DELETE CASCADE ON UPDATE CASCADE
                     );"""
