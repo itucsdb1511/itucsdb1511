@@ -1,6 +1,12 @@
+{% extends "layout.html" %}
+{% block title %}City Add{% endblock %}
+{% block content %}
+
  <form action="/addtournament" method="post">
   Tournament_ID: <input type="text" name="ID"><br>
   Tournament_Name: <input type="text" name="Name"><br>
+  Tournament_City_ID: <input type="text" name="City_ID"><br>
   <input type="submit" value="Submit">
 </form>
 
+{% endblock %}
