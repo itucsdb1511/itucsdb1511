@@ -111,7 +111,7 @@ def home_page():
             tournament=(Tournament(Tournament_ID, Tournament_Name))
             tournaments.append([i,(tournament),City_Name])
             i = i + 1
-    return render_template('home.html', CityList = cities, PlayerList = players, Tournament=tournaments)
+    return render_template('home.html', CityList = cities, PlayerList = players, TeamList = teams, Tournament=tournaments)
 
 
 @app.route('/riderlist')
