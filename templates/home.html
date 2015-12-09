@@ -26,24 +26,18 @@
 										<th>#</th>
 										<th>Name</th>
 										<th>Total Point</th>
+										<th>Country Name</th>
 									</tr>
 								</thead>
 								<tbody>
+									{% for order,team,totalPoints, countryName in TeamList %}
 									<tr>
-										<th scope="row">1</th>
-										<td>Mark</td>
-										<td>Otto</td>
+										<td>{{ order }}</td>
+										<td>{{ team.Name }}</td>
+										<td>{{ totalPoints }}</td>
+										<td>{{ countryName }}</td>
 									</tr>
-									<tr>
-										<th scope="row">2</th>
-										<td>Jacob</td>
-										<td>Thornton</td>
-									</tr>
-									<tr>
-										<th scope="row">3</th>
-										<td>Larry</td>
-										<td>the Bird</td>
-									</tr>
+									{% endfor %}
 								</tbody>
 							</table>
 							<a href="#" class="btn btn-default">More</a>

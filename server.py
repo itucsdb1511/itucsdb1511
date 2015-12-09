@@ -48,8 +48,8 @@ class Place:
     def __init__(self,ID,Name):
         self.ID = ID
         self.Name = Name
-		
-		
+
+
 app = Flask(__name__)
 
 
@@ -93,7 +93,16 @@ def home_page():
             player = Player(Player_ID,Player_Name)
             players.append([i,(player),Player_TeamName])
             i = i + 1
-    return render_template('home.html', CityList = cities, PlayerList = players)
+        teams=[]
+        statement = """SELECT Team.Team_ID, Team.Team_Name, Team.Team_Total_Points, Country.Country_Name as Team_CountryName FROM Team INNER JOIN Country ON (Team.Team_CountryID = Country.Country_ID) ORDER BY Team.Team_Name ASC """
+        cursor.execute(statement)
+        i = 1
+        tempList = cursor.fetchmany(5)
+        for Team_ID, Team_Name, Team_Total_Points, Team_CountryName in tempList:
+            team = Team(Team_ID,Team_Name)
+            teams.append([i,(team),Team_Total_Points,Team_CountryName])
+            i = i + 1
+    return render_template('home.html', CityList = cities, PlayerList = players, TeamList = teams)
 
 
 @app.route('/riderlist')
@@ -365,7 +374,7 @@ def addtournamentcomment():
                 return "error happened"
         return redirect(url_for('tournamentlist'))
     return render_template('tournamentcomments.html', ID=Tournament_ID)
-    
+
 @app.route('/searchtournament', methods=['POST', 'GET'])
 def searchtournament():
     if request.method == 'POST':
@@ -408,14 +417,19 @@ def addteam():
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
 
-            ID = request.form['ID']
             Name = request.form['Name']
+            CountryID = request.form['CountryID']
 
-            query = """CREATE TABLE IF NOT EXISTS Team ( Team_ID INT PRIMARY KEY NOT NULL, Team_Name CHAR(50) NOT NULL    );"""
+            query = """CREATE TABLE IF NOT EXISTS Team (
+                                Team_ID SERIAL PRIMARY KEY NOT NULL,
+                                Team_Name CHAR(50) NOT NULL,
+                                Team_CountryID INT REFERENCES Country (Country_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                Team_Total_Points INT DEFAULT 0
+                    );"""
             cursor.execute(query)
             try:
-                queryWithFormat = """INSERT INTO Team (Team_ID, Team_Name) VALUES (%s, %s)"""
-                cursor.execute(queryWithFormat, (ID, Name))
+                queryWithFormat = """INSERT INTO Team (Team_Name, Team_CountryID) VALUES (%s, %s)"""
+                cursor.execute(queryWithFormat, (Name, CountryID))
                 connection.commit()
             except dbapi2.DatabaseError:
                 connection.rollback()
@@ -585,7 +599,7 @@ def searchcountry():
                 return "error happened"
         return "eeeee"
     return render_template('searchcountry.html')
-    
+
 #---------------------place-------------------
 @app.route('/updateplace/<id>', methods=['POST', 'GET'])
 def updateplace(id):
@@ -602,7 +616,7 @@ def updateplace(id):
                 return "error happened"
         return redirect(url_for('placelist'))
     return render_template('updateplace.html', ID=id)
-    
+
 @app.route('/placecomments/<id>')
 def placecomments(id):
     with dbapi2.connect(app.config['dsn']) as connection:
@@ -619,24 +633,58 @@ def placecomments(id):
     return render_template('placecomments.html', ID=id ,commentlist=comments)
     #----------------------------------------------------------
 
-
-@app.route('/initdb')
-def initialize_database():
+@app.route('/resetdb')
+def reset_database():
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
 
         query = """DROP TABLE IF EXISTS COUNTER"""
         cursor.execute(query)
 
+        query = """DROP TABLE IF EXISTS City"""
+        cursor.execute(query)
+
+        query = """DROP TABLE IF EXISTS Country"""
+        cursor.execute(query)
+
+        query = """DROP TABLE IF EXISTS Player"""
+        cursor.execute(query)
+
+        query = """DROP TABLE IF EXISTS Tournament_Comments"""
+        cursor.execute(query)
+
+        query = """DROP TABLE IF EXISTS Tournament"""
+        cursor.execute(query)
+
+        query = """DROP TABLE IF EXISTS Team_Comments"""
+        cursor.execute(query)
+
+        query = """DROP TABLE IF EXISTS Team"""
+        cursor.execute(query)
+
+
+
+
+
+
+
+@app.route('/initdb')
+def initialize_database():
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+
         query = """CREATE TABLE COUNTER (N INTEGER)"""
         cursor.execute(query)
 
         query = """INSERT INTO COUNTER (N) VALUES (0)"""
         cursor.execute(query)
-        
-        query = """DROP TABLE IF EXISTS City"""
-        cursor.execute(query)        
-                
+
+        query = """CREATE TABLE IF NOT EXISTS Country (
+                                Country_ID INT PRIMARY KEY NOT NULL,
+                                Country_Name CHAR(50) NOT NULL
+                    );"""
+        cursor.execute(query)
+
         query = """CREATE TABLE IF NOT EXISTS City (
                                 City_ID SERIAL PRIMARY KEY NOT NULL,
                                 City_Name CHAR(50) NOT NULL,
@@ -644,7 +692,12 @@ def initialize_database():
                     );"""
         cursor.execute(query)
 
-        query = """DROP TABLE IF EXISTS Player"""
+        query = """CREATE TABLE IF NOT EXISTS Team (
+                                Team_ID SERIAL PRIMARY KEY NOT NULL,
+                                Team_Name CHAR(50) NOT NULL,
+                                Team_CountryID INT REFERENCES Country (Country_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                Team_Total_Points INT DEFAULT 0
+                    );"""
         cursor.execute(query)
 
         query = """CREATE TABLE IF NOT EXISTS Player (
@@ -660,11 +713,6 @@ def initialize_database():
                     );"""
         cursor.execute(query)
 
-        query = """CREATE TABLE IF NOT EXISTS Team (
-                                Team_ID INT PRIMARY KEY NOT NULL,
-                                Team_Name CHAR(50) NOT NULL
-                    );"""
-        cursor.execute(query)
 
         query = """CREATE TABLE IF NOT EXISTS Team_Comments (
                                 Team_Comment_ID INT PRIMARY KEY NOT NULL,
@@ -680,13 +728,6 @@ def initialize_database():
                     );"""
         cursor.execute(query)
 
-
-        query = """CREATE TABLE IF NOT EXISTS Country (
-                                Country_ID INT PRIMARY KEY NOT NULL,
-                                Country_Name CHAR(50) NOT NULL
-                    );"""
-        cursor.execute(query)
-        
         query = """CREATE TABLE IF NOT EXISTS Place (
                                 Place_ID INT PRIMARY KEY NOT NULL,
                                 Place_Name CHAR(50) NOT NULL
