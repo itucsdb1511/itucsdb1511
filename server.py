@@ -104,11 +104,13 @@ def home_page():
             i = i + 1
         statement = """SELECT Tournament.Tournament_ID, Tournament.Tournament_Name, City.City_Name as City_Name FROM Tournament INNER JOIN City ON (Tournament.Tournament_City_ID=City.City_ID) ORDER BY Tournament_ID"""
         cursor.execute(statement)
-        i = 1
         tournaments = []
-        for Tournament_ID, Tournament_Name, City_Name in cursor:
+        i = 1
+        tempList = cursor.fetchmany(5)
+        for Tournament_ID, Tournament_Name, City_Name in tempList:
             tournament=(Tournament(Tournament_ID, Tournament_Name))
             tournaments.append([i,(tournament),City_Name])
+            i = i + 1
     return render_template('home.html', CityList = cities, PlayerList = players, Tournament=tournaments)
 
 
