@@ -1,10 +1,159 @@
 {% extends "layout.html" %}
 {% block title %}Home{% endblock %}
 {% block content %}
-   <h1>Add-Delete City in Event City List /tunahan </h1>
-    sample texf ismail, alper tarafindan ollusturuldu
-    sample text ffffrom cem
-    aut control
-
-
+   <main class="wrapper">
+   <div id="datetime">{{ asd }}</div>
+   <div id="datetime">{{ current_time }}</div>
+   <div id="datetime">{{ current_time }}</div>
+   <div id="datetime">{{ current_time }}</div>
+			<div class="manset">
+				<img src="https://d30su0b7sry5gh.cloudfront.net/repo/OgXPbhlI/images/UcuMJqSU.jpg" width="100%" height="400px"/>
+			</div>
+			<div style="margin-top:5px;"></div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4>
+								<span class="glyphicon glyphicon-link" aria-hidden="true"></span> Team
+							</h4>
+						</div>
+						<div class="panel-body">
+							Top Teams
+							<table class="table">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Name</th>
+										<th>Total Point</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<th scope="row">1</th>
+										<td>Mark</td>
+										<td>Otto</td>
+									</tr>
+									<tr>
+										<th scope="row">2</th>
+										<td>Jacob</td>
+										<td>Thornton</td>
+									</tr>
+									<tr>
+										<th scope="row">3</th>
+										<td>Larry</td>
+										<td>the Bird</td>
+									</tr>
+								</tbody>
+							</table>
+							<a href="#" class="btn btn-default">More</a>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4>
+								<span class="glyphicon glyphicon-user" aria-hidden="true"></span> Player
+							</h4>
+						</div>
+						<div class="panel-body">
+							Top Players
+							<table class="table">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Name</th>
+										<th>Team</th>
+										<th>Point</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for order,player,team in PlayerList %}
+									<tr>
+										<td>{{ order }}</td>
+										<td>{{ player.Name }}</td>
+										<td>{{ team }}</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+							<a href="#" class="btn btn-default">More</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4>
+								<span class="glyphicon glyphicon-globe" aria-hidden="true"></span> City
+							</h4>
+						</div>
+						<div class="panel-body">
+							Most Visited Cities
+							<table class="table">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>City Name</th>
+										<th>Country</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for order,city,country in CityList %}
+									<tr>
+										<td>{{ order }}</td>
+										<td>{{ city.Name }}</td>
+										<td>{{ country }}</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+							<a href="/citylist" class="btn btn-default">More</a>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4>
+								<span class="glyphicon glyphicon-road" aria-hidden="true"></span> Event
+							</h4>
+						</div>
+						<div class="panel-body">
+							Best Events
+							<table class="table">
+								<thead>
+									<tr>
+										<th>#</th>
+										<th>Name</th>
+										<th>City</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<th scope="row">1</th>
+										<td>Mark</td>
+										<td>@mdo</td>
+									</tr>
+									<tr>
+										<th scope="row">2</th>
+										<td>Jacob</td>
+										<td>@fat</td>
+									</tr>
+									<tr>
+										<th scope="row">3</th>
+										<td>Larry</td>
+										<td>@twitter</td>
+									</tr>
+								</tbody>
+							</table>
+							<a href="#" class="btn btn-default">More</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			</main>
 {% endblock %}
