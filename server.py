@@ -252,7 +252,7 @@ def addplayer():
             cursor = connection.cursor()
 
             Name = request.form['Name']
-            TeamID = request.form['TeamID']
+            TeamID = request.form['selectedValue']
 
             query = """CREATE TABLE IF NOT EXISTS Player ( Player_ID SERIAL PRIMARY KEY NOT NULL, Player_Name CHAR(50) NOT NULL, Player_TeamID INT REFERENCES Team (Team_ID) );"""
             cursor.execute(query)
@@ -263,7 +263,16 @@ def addplayer():
                 connection.rollback()
                 return "error happened"
         return redirect(url_for('playerlist'))
-    return render_template('addplayer.html')
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT Team_ID, Team_Name FROM Team ORDER BY Team_ID"""
+        cursor.execute(statement)
+        teams=[]
+        for Team_ID,Team_Name in cursor:
+           team=(Team(Team_ID,Team_Name))
+           teams.append(team)
+    return render_template('addplayer.html', Teams = teams)
 
 @app.route('/updateplayer/<id>', methods=['POST', 'GET'])
 def updateplayer(id):
