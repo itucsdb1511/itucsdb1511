@@ -213,18 +213,33 @@ def searchcity():
     </script>"""
 
 #----------------------------------------------section player------------------------------
-
 @app.route('/playerlist')
 def playerlist():
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
+        pageItem = []
         players = []
         statement = """SELECT Player_ID, Player_Name FROM Player ORDER BY Player_ID"""
         cursor.execute(statement)
         for Player_ID, Player_Name in cursor:
             player = Player(Player_ID,Player_Name)
             players.append(player)
-    return render_template('playerlist.html', Players = players)
+        all_comments = []
+        temp_comments = []
+        for player in players:
+            statement = """SELECT Player_Comment_Text FROM Player_Comments WHERE Player_ID = {0}"""
+            cursor.execute(statement.format(player.ID))
+            print(cursor.fetchone())
+            for Player_Comment_Text in cursor:
+                temp_comments.append(Player_Comment_Text)
+                #print(temp_comments[0])
+            all_comments.append(temp_comments)
+            #print(all_comments)
+            temp_comments = []
+        for i in range(len(all_comments)):
+            pageItem.append([players[i], all_comments[i]])
+            #print(all_comments[i][0])
+    return render_template('playerlist.html', PageItem = pageItem)
 
 @app.route('/searchplayer', methods=['POST', 'GET'])
 def searchplayer():
@@ -333,7 +348,7 @@ def addtournament():
             ID = request.form['ID']
             Name = request.form['Name']
 
-            query = """CREATE TABLE IF NOT EXISTS Tournament ( Tournament_ID INT PRIMARY KEY NOT NULL, Tournament_Name CHAR(50) NOT NULL    );"""
+            query = """CREATE TABLE IF NOT EXISTS Tournament ( Tournament_ID SERIAL PRIMARY KEY NOT NULL, Tournament_Name CHAR(50) NOT NULL    );"""
             cursor.execute(query)
             try:
                 queryWithFormat = """INSERT INTO Tournament (Tournament_ID, Tournament_Name) VALUES (%s, %s)"""
@@ -657,33 +672,32 @@ def reset_database():
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
 
-        query = """DROP TABLE IF EXISTS COUNTER"""
+        query = """DROP TABLE IF EXISTS COUNTER CASCADE"""
         cursor.execute(query)
 
-        query = """DROP TABLE IF EXISTS City"""
+        query = """DROP TABLE IF EXISTS City CASCADE"""
         cursor.execute(query)
 
-        query = """DROP TABLE IF EXISTS Country"""
+        query = """DROP TABLE IF EXISTS Country CASCADE"""
         cursor.execute(query)
 
-        query = """DROP TABLE IF EXISTS Player"""
+        query = """DROP TABLE IF EXISTS Player CASCADE"""
         cursor.execute(query)
 
-        query = """DROP TABLE IF EXISTS Tournament_Comments"""
+        query = """DROP TABLE IF EXISTS Tournament_Comments CASCADE"""
         cursor.execute(query)
 
-        query = """DROP TABLE IF EXISTS Tournament"""
+        query = """DROP TABLE IF EXISTS Tournament CASCADE"""
         cursor.execute(query)
 
-        query = """DROP TABLE IF EXISTS Team_Comments"""
+        query = """DROP TABLE IF EXISTS Team_Comments CASCADE"""
         cursor.execute(query)
 
-        query = """DROP TABLE IF EXISTS Team"""
+        query = """DROP TABLE IF EXISTS Team CASCADE"""
         cursor.execute(query)
 
-
-
-
+        connection.commit()
+        return redirect(url_for('initialize_database'))
 
 
 
@@ -692,14 +706,8 @@ def initialize_database():
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
 
-        query = """CREATE TABLE COUNTER (N INTEGER)"""
-        cursor.execute(query)
-
-        query = """INSERT INTO COUNTER (N) VALUES (0)"""
-        cursor.execute(query)
-
         query = """CREATE TABLE IF NOT EXISTS Country (
-                                Country_ID INT PRIMARY KEY NOT NULL,
+                                Country_ID SERIAL PRIMARY KEY NOT NULL,
                                 Country_Name CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
@@ -725,30 +733,40 @@ def initialize_database():
                                 Player_TeamID INT REFERENCES Team (Team_ID) ON DELETE CASCADE ON UPDATE CASCADE
                     );"""
         cursor.execute(query)
+        
+         query = """CREATE TABLE IF NOT EXISTS Player_Comments (
+                                Player_Comment_ID SERIAL PRIMARY KEY NOT NULL,
+                                Player_ID INTEGER REFERENCES Player(Player_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                PLayer_Comment_Text CHAR(500) NOT NULL
+                    );"""
+        cursor.execute(query)
+        
+        query = """INSERT INTO Player_Comments (Player_ID, PLayer_Comment_Text) VALUES (2,'ismail bir tuhaf adamdır')"""
+
 
         query = """CREATE TABLE IF NOT EXISTS Tournament (
-                                Tournament_ID INT PRIMARY KEY NOT NULL,
+                                Tournament_ID SERIAL PRIMARY KEY NOT NULL,
                                 Tournament_Name CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
 
 
         query = """CREATE TABLE IF NOT EXISTS Team_Comments (
-                                Team_Comment_ID INT PRIMARY KEY NOT NULL,
+                                Team_Comment_ID SERIAL PRIMARY KEY NOT NULL,
                                 Team_ID INTEGER REFERENCES Team(Team_ID) ON DELETE CASCADE ON UPDATE CASCADE,
                                 Team_Comment_Text CHAR(500) NOT NULL
                     );"""
         cursor.execute(query)
 
         query = """CREATE TABLE IF NOT EXISTS Tournament_Comments (
-                                Tournament_Comment_ID INT PRIMARY KEY NOT NULL,
+                                Tournament_Comment_ID SERIAL PRIMARY KEY NOT NULL,
                                 Tournament_ID INTEGER REFERENCES Tournament(Tournament_ID) ON DELETE CASCADE ON UPDATE CASCADE,
                                 Tournament_Comment_Text CHAR(500) NOT NULL
                     );"""
         cursor.execute(query)
 
         query = """CREATE TABLE IF NOT EXISTS Place (
-                                Place_ID INT PRIMARY KEY NOT NULL,
+                                Place_ID SERIAL PRIMARY KEY NOT NULL,
                                 Place_Name CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
