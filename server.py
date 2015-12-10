@@ -734,7 +734,7 @@ def initialize_database():
                     );"""
         cursor.execute(query)
         
-         query = """CREATE TABLE IF NOT EXISTS Player_Comments (
+        query = """CREATE TABLE IF NOT EXISTS Player_Comments (
                                 Player_Comment_ID SERIAL PRIMARY KEY NOT NULL,
                                 Player_ID INTEGER REFERENCES Player(Player_ID) ON DELETE CASCADE ON UPDATE CASCADE,
                                 PLayer_Comment_Text CHAR(500) NOT NULL
