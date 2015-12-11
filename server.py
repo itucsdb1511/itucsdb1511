@@ -469,7 +469,16 @@ def addteam():
                 connection.rollback()
                 return "error happened"
         return redirect(url_for('teamlist'))
-    return render_template('addteam.html')
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT Country_ID, Country_Name FROM Country ORDER BY Country_ID"""
+        cursor.execute(statement)
+        countries=[]
+        for Country_ID,Country_Name in cursor:
+           country=(Country(Country_ID, Country_Name))
+           countries.append(country)
+    return render_template('addteam.html', Countries = countries)
 
 @app.route('/teamdelete/<id>')
 def teamdelete(id):
