@@ -1,12 +1,12 @@
-Welcome to itucsdb's documentation!
+Welcome to itucsdb11's documentation!
 ===================================
 
-:Team: Team Name
+:Team: Team 11
 
 :Members:
 
    * Member 1
-   * Member 2
+   * Cem Yusuf Aydoğdu
    * Member 3
    * Member 4
    * Member 5
