@@ -593,17 +593,14 @@ def addcountry():
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
 
-            ID = request.form['ID']
             Name = request.form['Name']
 
-            query = """CREATE TABLE IF NOT EXISTS Country ( Country_ID INT PRIMARY KEY NOT NULL, Country_Name CHAR(50) NOT NULL    );"""
+            query = """CREATE TABLE IF NOT EXISTS Country ( Country_ID SERIAL PRIMARY KEY NOT NULL, Country_Name CHAR(50) NOT NULL    );"""
             cursor.execute(query)
-            try:
-                queryWithFormat = """INSERT INTO Country (Country_ID, Country_Name) VALUES (%s, %s)"""
-                cursor.execute(queryWithFormat, (ID, Name))
-            except dbapi2.DatabaseError:
-                connection.rollback()
-                return "error happened"
+
+            queryWithFormat = """INSERT INTO Country (Country_Name) VALUES ( '{0}' )"""
+            cursor.execute(queryWithFormat.format(Name))
+
         return redirect(url_for('countrylist'))
     return render_template('addcountry.html')
 
