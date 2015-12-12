@@ -12,7 +12,6 @@ from flask import redirect
 from flask import render_template
 from flask.helpers import url_for
 import psycopg2
-from _overlapped import NULL
 
 class City:
         def __init__(self, ID, Name):
