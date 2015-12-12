@@ -1034,6 +1034,19 @@ def initialize_database():
                     );"""
         cursor.execute(query)
         
+        query = """CREATE TABLE IF NOT EXISTS Author (
+                                Author_Student_ID INT PRIMARY KEY NOT NULL,
+                                Author_Name CHAR(50) NOT NULL,
+                                Author_Work_Description CHAR(500) NOT NULL
+                    );
+                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (12, 'Alper', 'Tournament, Tournament_Comment, Author');
+                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (34, 'Cem', 'Team, Team_Comment, ');
+                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (56, 'Tunahan', 'City, Country, ');
+                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (78, 'Emre', 'Place');
+                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (90, 'Ismail', 'Player, Manager, ');
+                    """
+        cursor.execute(query)
+        
         query = """CREATE TABLE IF NOT EXISTS Admin (
                                 Admin_ID SERIAL PRIMARY KEY NOT NULL,
                                 Admin_Username CHAR(50) NOT NULL,
