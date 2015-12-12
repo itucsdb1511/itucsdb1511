@@ -927,6 +927,9 @@ def reset_database():
         
         query = """DROP TABLE IF EXISTS Admin CASCADE"""
         cursor.execute(query)
+        
+        query = """DROP TABLE IF EXISTS Author CASCADE"""
+        cursor.execute(query)
 
         connection.commit()
         return redirect(url_for('initialize_database'))
