@@ -22,10 +22,3 @@ Code
          def __init__(self, x):
             self.x = x
 
-.. toctree::
-
-   member1
-   member2
-   member3
-   member4
-   member5
