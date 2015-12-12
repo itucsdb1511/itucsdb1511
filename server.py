@@ -50,7 +50,12 @@ class Place:
     def __init__(self,ID,Name):
         self.ID = ID
         self.Name = Name
-
+        
+class Accommodation:
+        def __init__(self, ID, Name):
+            self.ID = ID
+            self.Name = Name
+            self.Comments= []
 
 app = Flask(__name__)
 
@@ -734,12 +739,146 @@ def placecomments(id):
     return render_template('placecomments.html', ID=id ,commentlist=comments)
     #----------------------------------------------------------
 
+@app.route('/accommodationlist')
+def accommodationlist():
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT Accommodation_ID, Accommodation_Name FROM Accommodation ORDER BY Accommodation_ID"""
+        cursor.execute(statement)
+        accommodationies=[]
+        for Accommodation_ID,Accommodation_Name in cursor:
+           accommodation=(Accommodation(Accommodation_ID,Accommodation_Name))
+           accommodationies.append(accommodation)
+           print(Accommodation_ID)
+        for accommodation in accommodationies:
+            statement = """SELECT Accommodation_Comment_Text FROM Accommodation_Comments WHERE Accommodation_ID = {0}"""
+            cursor.execute(statement.format(accommodation.ID))
+            for Accommodation_Comment_Text in cursor:
+                accommodation.Comments.append(Accommodation_Comment_Text)
+    return render_template('accommodationlist.html', accommodationlist=accommodationies)
+
+@app.route('/accommodationdelete/<id>')
+def accommodationdelete(id):
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        statement = """DELETE FROM Accommodation WHERE Accommodation_ID={0}"""
+        cursor.execute(statement.format(id))
+        connection.commit()
+    return redirect(url_for('accommodationlist'))
+
+@app.route('/addaccommodation', methods=['POST', 'GET'])
+def addaccommodation():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+
+            Name = request.form['Name']
+            AccommodationID = request.form['selectedValue']
+
+
+            query = """CREATE TABLE IF NOT EXISTS Accommodation ( Accommodation_ID SERIAL PRIMARY KEY NOT NULL, Accommodation_Name CHAR(50) NOT NULL, Accommodation_CityID INT REFERENCES City (City_ID) ON DELETE CASCADE ON UPDATE CASCADE    );"""
+            cursor.execute(query)
+            try:
+                queryWithFormat = """INSERT INTO Accommodation (Accommodation_Name, Accommodation_CityID) VALUES (%s, %s)"""
+                cursor.execute(queryWithFormat, (Name, AccommodationID))
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('accommodationlist'))
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT City_ID, City_Name FROM City ORDER BY City_ID"""
+        cursor.execute(statement)
+        cities=[]
+        for City_ID,City_Name in cursor:
+           city=(City(City_ID,City_Name))
+           cities.append(city)
+    return render_template('addaccommodation.html', Cities = cities)
+
+@app.route('/addaccommodationcomment/<id>', methods=['POST', 'GET'])
+def addaccommodationcomment(id):
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+
+            Comment = request.form['Comment']
+
+            query = """CREATE TABLE IF NOT EXISTS Accommodation_Comments (
+                                Accommodation_Comment_ID SERIAL PRIMARY KEY NOT NULL,
+                                Accommodation_ID INTEGER REFERENCES Accommodation(Accommodation_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                Accommodation_Comment_Text CHAR(500) NOT NULL
+                    );"""
+            cursor.execute(query)
+
+
+            try:
+                queryWithFormat = """INSERT INTO Accommodation_Comments (Accommodation_ID, Accommodation_Comment_Text) VALUES (%s,%s)"""
+                cursor.execute(queryWithFormat, (id, Comment))
+                connection.commit()
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('accommodationlist'))
+    return render_template('addaccommodationcomment.html', ID=id)
+
+@app.route('/updateaccommodation/<id>', methods=['POST', 'GET'])
+def updateaccommodation(id):
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            New_Name = request.form['Name']
+            try:
+                query = """UPDATE Accommodation SET Accommodation_Name='%s' WHERE Accommodation_ID='%s' """ % (New_Name, id)
+                cursor.execute(query)
+                connection.commit()
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('accommodationlist'))
+    return render_template('updateaccommodation.html', ID=id)
+
+@app.route('/searchaccommodation', methods=['POST', 'GET'])
+def searchaccommodation():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+            textstr = request.form['textstr']
+            accommodationies = []
+            try:
+                query = """SELECT Accommodation_ID, Accommodation_Name FROM Accommodation WHERE Accommodation_Name like '%{0}%'"""
+                cursor.execute(query.format(textstr))
+                for Accommodation_ID, Accommodation_Name in cursor:
+                    accommodation = Accommodation(Accommodation_ID,Accommodation_Name)
+                    accommodationies.append(accommodation)
+                return render_template('accommodationlist.html', accommodationlist = accommodationies)
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return "eeeee"
+    return render_template('searchaccommodation.html')
+
+
+
+
+
+
+
+
+
+
+
+
 @app.route('/resetdb')
 def reset_database():
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
 
         query = """DROP TABLE IF EXISTS COUNTER CASCADE"""
+        cursor.execute(query)
+        
+        query = """DROP TABLE IF EXISTS Accommodation CASCADE"""
         cursor.execute(query)
 
         query = """DROP TABLE IF EXISTS City CASCADE"""
@@ -791,6 +930,24 @@ def initialize_database():
                                 City_CountryID INT REFERENCES Country (Country_ID) ON DELETE CASCADE ON UPDATE CASCADE
                     );"""
         cursor.execute(query)
+
+
+        query = """CREATE TABLE IF NOT EXISTS Accommodation (
+                                Accommodation_ID SERIAL PRIMARY KEY NOT NULL,
+                                Accommodation_Name CHAR(50) NOT NULL,
+                                Accommodation_CityID INT REFERENCES City (City_ID) ON DELETE CASCADE ON UPDATE CASCADE
+                    );"""
+        cursor.execute(query)
+
+        query = """CREATE TABLE IF NOT EXISTS Accommodation_Comments (
+                                Accommodation_Comment_ID SERIAL PRIMARY KEY NOT NULL,
+                                Accommodation_ID INTEGER REFERENCES Accommodation(Accommodation_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                Accommodation_Comment_Text CHAR(500) NOT NULL
+                    );"""
+        cursor.execute(query)
+
+
+
 
         query = """CREATE TABLE IF NOT EXISTS City_Comments (
                                 City_Comment_ID SERIAL PRIMARY KEY NOT NULL,
