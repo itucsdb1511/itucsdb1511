@@ -23,6 +23,7 @@ class Team:
     def __init__(self,ID,Name):
         self.ID = ID
         self.Name = Name
+        self.Comments = []
 
 class Player:
     def __init__(self,ID,Name):
@@ -297,7 +298,7 @@ def addplayer():
            team=(Team(Team_ID,Team_Name))
            teams.append(team)
     return render_template('addplayer.html', Teams = teams)
-    
+
 @app.route('/addplayercomment/<id>', methods=['POST', 'GET'])
 def addplayercomment(id):
     if request.method == 'POST':
@@ -475,7 +476,12 @@ def teamlist():
         for Team_ID,Team_Name in cursor:
            team=(Team(Team_ID,Team_Name))
            teams.append(team)
-    return render_template('teamlist.html', team_list=teams)
+        for team in teams:
+           statement = """SELECT Team_Comment_Text FROM Team_Comments WHERE Team_ID = {0}"""
+           cursor.execute(statement.format(team.ID))
+           for Team_Comment_Text in cursor:
+               team.Comments.append(Team_Comment_Text)
+    return render_template('teamlist.html', Teams=teams)
 
 
 @app.route('/addteam', methods=['POST', 'GET'])
@@ -485,7 +491,7 @@ def addteam():
             cursor = connection.cursor()
 
             Name = request.form['Name']
-            CountryID = request.form['CountryID']
+            CountryID = request.form['selectedValue']
 
             query = """CREATE TABLE IF NOT EXISTS Team (
                                 Team_ID SERIAL PRIMARY KEY NOT NULL,
@@ -555,24 +561,24 @@ def teamcomments(id):
            comments.append(comment)
     return render_template('teamcomments.html', ID=id ,commentlist=comments)
 
-@app.route('/addteamcomment', methods=['POST', 'GET'])
-def addteamcomment():
+@app.route('/addteamcomment/<id>', methods=['POST', 'GET'])
+def addteamcomment(id):
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
-            Comment_ID = request.form['Comment_ID']
-            Text = request.form['Text']
-            Team_ID = request.form['Team_ID']
+
+            Comment = request.form['Comment']
+
             try:
-                query = """INSERT INTO Team_Comments (Team_Comment_ID, Team_ID, Team_Comment_Text)
-                    VALUES (%s, %s, %s)"""
-                cursor.execute(query, (Comment_ID, Team_ID, Text))
+                query = """INSERT INTO Team_Comments (Team_ID, Team_Comment_Text)
+                    VALUES (%s, %s)"""
+                cursor.execute(query, (id, Comment))
                 connection.commit()
             except dbapi2.DatabaseError:
                 connection.rollback()
                 return "error happened"
         return redirect(url_for('teamlist'))
-    return render_template('teamcomments.html', ID=Team_ID)
+    return render_template('addteamcomment.html', ID=id)
 
 @app.route('/searchteam', methods=['POST', 'GET'])
 def searchteam():
@@ -722,7 +728,7 @@ def reset_database():
 
         query = """DROP TABLE IF EXISTS Player CASCADE"""
         cursor.execute(query)
-        
+
         query = """DROP TABLE IF EXISTS Player_Comments CASCADE"""
         cursor.execute(query)
 
@@ -775,14 +781,14 @@ def initialize_database():
                                 Player_TeamID INT REFERENCES Team (Team_ID) ON DELETE CASCADE ON UPDATE CASCADE
                     );"""
         cursor.execute(query)
-        
+
         query = """CREATE TABLE IF NOT EXISTS Player_Comments (
                                 Player_Comment_ID SERIAL PRIMARY KEY NOT NULL,
                                 Player_ID INTEGER REFERENCES Player(Player_ID) ON DELETE CASCADE ON UPDATE CASCADE,
                                 PLayer_Comment_Text CHAR(500) NOT NULL
                     );"""
         cursor.execute(query)
-        
+
         query = """INSERT INTO Player_Comments (Player_ID, PLayer_Comment_Text) VALUES (2,'ismail bir tuhaf adamdır')"""
 
 
