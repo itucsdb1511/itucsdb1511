@@ -12,12 +12,12 @@
 	<a style="font-weight:Bold" href="{{ url_for('addplayer') }}">Add player</a>
 	<a style="font-weight:Bold" href="{{ url_for('searchplayer') }}">Search player</a>
 
-	<table border="1" id="tbl">
+	<table border="1" id="tbl" >
 	<tr>
 		<th>Player ID</th>
 		<th>Player Name</th>
 	</tr>
-		{% for player,comments in PageItem %}
+		{% for player in Players %}
 			<tr>
 				<td>{{ player.ID }}</td>
 				<td>{{ player.Name }}</td>
@@ -28,16 +28,19 @@
 				<a href="{{ url_for('updateplayer',id = player.ID) }}">Update player</a>
 				</td>
 				<td>
-					<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Comments</button>
-					<div id="myModal" class="modal fade" role="dialog">
+					<a href="{{ url_for('addplayercomment',id = player.ID) }}">Add comment for this player</a>
+				</td>
+				<td>
+					<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal{{ player.ID }}">Comments</button>
+					<div id="myModal{{ player.ID }}" class="modal fade" role="dialog">
   						<div class="modal-dialog">
   							<div class="modal-content">
       							<div class="modal-header">
         							<button type="button" class="close" data-dismiss="modal">&times;</button>
-        							<h4 class="modal-title">comments for {{ player.Name }} </h4>
+        							<h4 class="modal-title">Check comments for {{ player.Name }} </h4>
 	      						</div>
     	  						<div class="modal-body">
-	    	  						{% for comment in comments %}
+	    	  						{% for comment in player.Comments %}
         							<p>{{ comment }}</p>
         							{% endfor %}
 	      						</div>
