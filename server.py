@@ -585,11 +585,10 @@ def addteamcomment(id):
             cursor = connection.cursor()
 
             Comment = request.form['Comment']
-            
-            query = """CREATE TABLE IF NOT EXISTS City_Comments (
-                                City_Comment_ID SERIAL PRIMARY KEY NOT NULL,
-                                City_ID INTEGER REFERENCES City(City_ID) ON DELETE CASCADE ON UPDATE CASCADE,
-                                City_Comment_Text CHAR(500) NOT NULL
+            query = """CREATE TABLE IF NOT EXISTS Team_Comments (
+                                Team_Comment_ID SERIAL PRIMARY KEY NOT NULL,
+                                Team_ID INTEGER REFERENCES Team(Team_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                Team_Comment_Text CHAR(500) NOT NULL
                     );"""
             cursor.execute(query)
             try:
