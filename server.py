@@ -775,6 +775,9 @@ def reset_database():
 
         query = """DROP TABLE IF EXISTS Team CASCADE"""
         cursor.execute(query)
+        
+        query = """DROP TABLE IF EXISTS Admin CASCADE"""
+        cursor.execute(query)
 
         connection.commit()
         return redirect(url_for('initialize_database'))
@@ -858,6 +861,13 @@ def initialize_database():
         query = """CREATE TABLE IF NOT EXISTS Place (
                                 Place_ID SERIAL PRIMARY KEY NOT NULL,
                                 Place_Name CHAR(50) NOT NULL
+                    );"""
+        cursor.execute(query)
+        
+        query = """CREATE TABLE IF NOT EXISTS Admin (
+                                Admin_ID SERIAL PRIMARY KEY NOT NULL,
+                                Admin_Username CHAR(50) NOT NULL,
+                                Admin_Password CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
 
