@@ -17,7 +17,7 @@ class City:
         def __init__(self, ID, Name):
             self.ID = ID
             self.Name = Name
-
+            self.Comments = [];
 
 class Team:
     def __init__(self,ID,Name):
@@ -798,6 +798,15 @@ def initialize_database():
                                 City_CountryID INT REFERENCES Country (Country_ID) ON DELETE CASCADE ON UPDATE CASCADE
                     );"""
         cursor.execute(query)
+
+        query = """CREATE TABLE IF NOT EXISTS City_Comments (
+                                City_Comment_ID SERIAL PRIMARY KEY NOT NULL,
+                                City_ID INTEGER REFERENCES City(City_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                City_Comment_Text CHAR(500) NOT NULL
+                    );"""
+        cursor.execute(query)
+
+
 
         query = """CREATE TABLE IF NOT EXISTS Team (
                                 Team_ID SERIAL PRIMARY KEY NOT NULL,
