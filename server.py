@@ -95,7 +95,7 @@ def home_page():
             players.append([i,(player),Player_TeamName])
             i = i + 1
         teams=[]
-        statement = """SELECT Team.Team_ID, aTeam.Team_Name, Team.Team_Total_Points, Country.Country_Name as Team_CountryName FROM Team INNER JOIN Country ON (Team.Team_CountryID = Country.Country_ID) ORDER BY Team.Team_Name ASC """
+        statement = """SELECT Team.Team_ID, Team.Team_Name, Team.Team_Total_Points, Country.Country_Name as Team_CountryName FROM Team INNER JOIN Country ON (Team.Team_CountryID = Country.Country_ID) ORDER BY Team.Team_Name ASC """
         cursor.execute(statement)
         i = 1
         tempList = cursor.fetchmany(5)
