@@ -578,21 +578,6 @@ def updateteam(id):
         return redirect(url_for('teamlist'))
     return render_template('updateteam.html', ID=id)
 
-@app.route('/teamcomments/<id>')
-def teamcomments(id):
-    with dbapi2.connect(app.config['dsn']) as connection:
-        cursor = connection.cursor()
-        retval = ""
-        statement = """SELECT Team_Comment_ID, Team_Comment_Text
-                        FROM Team_Comments WHERE Team_ID=%s
-                        ORDER BY Team_Comment_ID""" % (id)
-        cursor.execute(statement)
-        comments=[]
-        for Team_Comment_ID,Team_Comment_Text in cursor:
-           comment=(Team(Team_Comment_ID,Team_Comment_Text))
-           comments.append(comment)
-    return render_template('teamcomments.html', ID=id ,commentlist=comments)
-
 @app.route('/addteamcomment/<id>', methods=['POST', 'GET'])
 def addteamcomment(id):
     if request.method == 'POST':
@@ -600,7 +585,13 @@ def addteamcomment(id):
             cursor = connection.cursor()
 
             Comment = request.form['Comment']
-
+            
+            query = """CREATE TABLE IF NOT EXISTS City_Comments (
+                                City_Comment_ID SERIAL PRIMARY KEY NOT NULL,
+                                City_ID INTEGER REFERENCES City(City_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                City_Comment_Text CHAR(500) NOT NULL
+                    );"""
+            cursor.execute(query)
             try:
                 query = """INSERT INTO Team_Comments (Team_ID, Team_Comment_Text)
                     VALUES (%s, %s)"""
