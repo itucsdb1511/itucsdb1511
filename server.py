@@ -140,6 +140,12 @@ def citylist():
         for City_ID,City_Name in cursor:
            city=(City(City_ID,City_Name))
            cities.append(city)
+           print(City_ID)
+        for city in cities:
+            statement = """SELECT City_Comment_Text FROM City_Comments WHERE City_ID = {0}"""
+            cursor.execute(statement.format(city.ID))
+            for City_Comment_Text in cursor:
+                city.Comments.append(City_Comment_Text)
     return render_template('citylist.html', citylist=cities)
 
 @app.route('/citydelete/<id>')
@@ -180,6 +186,32 @@ def addcity():
            country=(Country(Country_ID,Country_Name))
            countries.append(country)
     return render_template('addcity.html', Countries = countries)
+
+@app.route('/addcitycomment/<id>', methods=['POST', 'GET'])
+def addcitycomment(id):
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+
+            Comment = request.form['Comment']
+
+            query = """CREATE TABLE IF NOT EXISTS City_Comments (
+                                City_Comment_ID SERIAL PRIMARY KEY NOT NULL,
+                                City_ID INTEGER REFERENCES City(City_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                City_Comment_Text CHAR(500) NOT NULL
+                    );"""
+            cursor.execute(query)
+
+
+            try:
+                queryWithFormat = """INSERT INTO City_Comments (City_ID, City_Comment_Text) VALUES (%s,%s)"""
+                cursor.execute(queryWithFormat, (id, Comment))
+                connection.commit()
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('citylist'))
+    return render_template('addcitycomment.html', ID=id)
 
 @app.route('/updatecity/<id>', methods=['POST', 'GET'])
 def updatecity(id):
