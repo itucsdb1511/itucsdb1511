@@ -51,6 +51,12 @@ class Place:
         self.ID = ID
         self.Name = Name
         
+class Author:
+    def __init__(self,ID,Name,WorkDescription):
+        self.ID = ID
+        self.Name = Name
+        self.WorkDescription = WorkDescription
+
 class Accommodation:
         def __init__(self, ID, Name):
             self.ID = ID
