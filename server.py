@@ -12,6 +12,7 @@ from flask import redirect
 from flask import render_template
 from flask.helpers import url_for
 import psycopg2
+from _overlapped import NULL
 
 class City:
         def __init__(self, ID, Name):
@@ -28,6 +29,7 @@ class Player:
     def __init__(self,ID,Name):
         self.ID = ID
         self.Name = Name
+        self.Comments = []
 
 class Tournament:
     def __init__(self,ID,Name):
@@ -217,29 +219,18 @@ def searchcity():
 def playerlist():
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
-        pageItem = []
         players = []
         statement = """SELECT Player_ID, Player_Name FROM Player ORDER BY Player_ID"""
         cursor.execute(statement)
         for Player_ID, Player_Name in cursor:
             player = Player(Player_ID,Player_Name)
             players.append(player)
-        all_comments = []
-        temp_comments = []
         for player in players:
             statement = """SELECT Player_Comment_Text FROM Player_Comments WHERE Player_ID = {0}"""
             cursor.execute(statement.format(player.ID))
-            print(cursor.fetchone())
             for Player_Comment_Text in cursor:
-                temp_comments.append(Player_Comment_Text)
-                #print(temp_comments[0])
-            all_comments.append(temp_comments)
-            #print(all_comments)
-            temp_comments = []
-        for i in range(len(all_comments)):
-            pageItem.append([players[i], all_comments[i]])
-            #print(all_comments[i][0])
-    return render_template('playerlist.html', PageItem = pageItem)
+                player.Comments.append(Player_Comment_Text)
+    return render_template('playerlist.html', Players = players)
 
 @app.route('/searchplayer', methods=['POST', 'GET'])
 def searchplayer():
@@ -298,6 +289,32 @@ def addplayer():
            team=(Team(Team_ID,Team_Name))
            teams.append(team)
     return render_template('addplayer.html', Teams = teams)
+    
+@app.route('/addplayercomment/<id>', methods=['POST', 'GET'])
+def addplayercomment(id):
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+
+            Comment = request.form['Comment']
+
+            query = """CREATE TABLE IF NOT EXISTS Player_Comments (
+                                Player_Comment_ID SERIAL PRIMARY KEY NOT NULL,
+                                Player_ID INTEGER REFERENCES Player(Player_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                PLayer_Comment_Text CHAR(500) NOT NULL
+                    );"""
+            cursor.execute(query)
+
+
+            try:
+                queryWithFormat = """INSERT INTO Player_Comments (Player_ID, PLayer_Comment_Text) VALUES (%s,%s)"""
+                cursor.execute(queryWithFormat, (id, Comment))
+                connection.commit()
+            except dbapi2.DatabaseError:
+                connection.rollback()
+                return "error happened"
+        return redirect(url_for('playerlist'))
+    return render_template('addplayercomment.html', ID=id)
 
 @app.route('/updateplayer/<id>', methods=['POST', 'GET'])
 def updateplayer(id):
@@ -688,6 +705,9 @@ def reset_database():
         cursor.execute(query)
 
         query = """DROP TABLE IF EXISTS Player CASCADE"""
+        cursor.execute(query)
+        
+        query = """DROP TABLE IF EXISTS Player_Comments CASCADE"""
         cursor.execute(query)
 
         query = """DROP TABLE IF EXISTS Tournament_Comments CASCADE"""
