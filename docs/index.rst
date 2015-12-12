@@ -5,9 +5,9 @@ Welcome to itucsdb11's documentation!
 
 :Members:
 
-   * Member 1
+   * Tunahan Erkoyuncu
    * Cem Yusuf Aydoğdu
-   * Member 3
+   * İsmail Serhat Buga
    * Member 4
    * Member 5
 
