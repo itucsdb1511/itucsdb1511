@@ -95,7 +95,7 @@ def home_page():
             players.append([i,(player),Player_TeamName])
             i = i + 1
         teams=[]
-        statement = """SELECT Team.Team_ID, Team.Team_Name, Team.Team_Total_Points, Country.Country_Name as Team_CountryName FROM Team INNER JOIN Country ON (Team.Team_CountryID = Country.Country_ID) ORDER BY Team.Team_Name ASC """
+        statement = """SELECT Team.Team_ID, aTeam.Team_Name, Team.Team_Total_Points, Country.Country_Name as Team_CountryName FROM Team INNER JOIN Country ON (Team.Team_CountryID = Country.Country_ID) ORDER BY Team.Team_Name ASC """
         cursor.execute(statement)
         i = 1
         tempList = cursor.fetchmany(5)
@@ -103,7 +103,16 @@ def home_page():
             team = Team(Team_ID,Team_Name)
             teams.append([i,(team),Team_Total_Points,Team_CountryName])
             i = i + 1
-    return render_template('home.html', CityList = cities, PlayerList = players, TeamList = teams)
+        tournaments=[]
+        statement = """SELECT Tournament.Tournament_ID, Tournament.Tournament_Name, City.City_Name as City_Name FROM Tournament INNER JOIN City ON (Tournament.Tournament_CityID = City.City_ID) ORDER BY Tournament.Tournament_ID ASC """
+        cursor.execute(statement)
+        i = 1
+        tempList = cursor.fetchmany(5)
+        for Tournament_ID, Tournament_Name, City_Name in tempList:
+            tournament = Tournament(Tournament_ID,Tournament_Name)
+            tournaments.append([i,(tournament),City_Name])
+            i = i + 1
+    return render_template('home.html', CityList = cities, PlayerList = players, TeamList = teams, Tournament = tournaments)
 
 
 @app.route('/riderlist')
@@ -361,19 +370,27 @@ def addtournament():
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
 
-            ID = request.form['ID']
             Name = request.form['Name']
+            City_ID = request.form['selectedValue']
 
-            query = """CREATE TABLE IF NOT EXISTS Tournament ( Tournament_ID SERIAL PRIMARY KEY NOT NULL, Tournament_Name CHAR(50) NOT NULL    );"""
+            query = """CREATE TABLE IF NOT EXISTS Tournament ( Tournament_ID SERIAL PRIMARY KEY NOT NULL, Tournament_Name CHAR(50) NOT NULL, Tournament_CityID INT REFERENCES City (City_ID) ON DELETE CASCADE ON UPDATE CASCADE);"""
             cursor.execute(query)
             try:
-                queryWithFormat = """INSERT INTO Tournament (Tournament_ID, Tournament_Name) VALUES (%s, %s)"""
-                cursor.execute(queryWithFormat, (ID, Name))
+                queryWithFormat = """INSERT INTO Tournament (Tournament_Name, Tournament_CityID ) VALUES (%s, %s)"""
+                cursor.execute(queryWithFormat, (Name, City_ID))
             except dbapi2.DatabaseError:
                 connection.rollback()
                 return "error happened"
         return redirect(url_for('tournamentlist'))
-    return render_template('addtournament.html')
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        statement = """SELECT City_ID, City_Name FROM City ORDER BY City_ID"""
+        cursor.execute(statement)
+        cities=[]
+        for City_ID,City_Name in cursor:
+            city=(City(City_ID,City_Name))
+            cities.append(city)
+    return render_template('addtournament.html', Cities = cities)
 
 @app.route('/updatetournament/<id>', methods=['POST', 'GET'])
 def updatetournament(id):
@@ -771,7 +788,8 @@ def initialize_database():
 
         query = """CREATE TABLE IF NOT EXISTS Tournament (
                                 Tournament_ID SERIAL PRIMARY KEY NOT NULL,
-                                Tournament_Name CHAR(50) NOT NULL
+                                Tournament_Name CHAR(50) NOT NULL,
+                                Tournament_CityID INT REFERENCES City (City_ID) ON DELETE CASCADE ON UPDATE CASCADE
                     );"""
         cursor.execute(query)
 
