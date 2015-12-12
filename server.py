@@ -865,8 +865,22 @@ def searchaccommodation():
         return "eeeee"
     return render_template('searchaccommodation.html')
 
+#--------------------- Author -------------------------------------------
 
-
+@app.route('/contactus')
+def authorlist():
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        retval = ""
+        statement = """SELECT Author_Student_ID, Author_Name, Author_Work_Description FROM Author ORDER BY Author_Student_ID ASC"""
+        cursor.execute(statement)
+        authors=[]
+        for Author_Student_ID, Author_Name, Author_Work_Description in cursor:
+           author=(Author(Author_Student_ID,Author_Name,Author_Work_Description))
+           authors.append(author)
+    return render_template('contactus.html', authorlist=authors)
+    
+ #-------------------------------------------------------------------------
 
 
 
