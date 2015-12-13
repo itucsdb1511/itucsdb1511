@@ -18,8 +18,7 @@ class City:
             self.ID = ID
             self.Name = Name
             self.Comments = [];
-            self.CountryName="";
-            self.CountryID=0;
+
 
 class Team:
     def __init__(self,ID,Name):
@@ -147,12 +146,11 @@ def citylist():
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
         retval = ""
-        statement = """SELECT City_ID, City_Name, City_CountryID FROM City ORDER BY City_ID"""
+        statement = """SELECT City_ID, City_Name FROM City ORDER BY City_ID"""
         cursor.execute(statement)
         cities=[]
-        for City_ID,City_Name,City_CountryID in cursor:
+        for City_ID,City_Name in cursor:
            city=(City(City_ID,City_Name))
-           city.CountryID=City_CountryID
            cities.append(city)
            print(City_ID)
         for city in cities:
@@ -160,10 +158,6 @@ def citylist():
             cursor.execute(statement.format(city.ID))
             for City_Comment_Text in cursor:
                 city.Comments.append(City_Comment_Text)
-            statement="""SELECT Country_Name FROM Country WHERE Country_ID = {0}"""
-            cursor.execute(statement.format(city.CountryID))
-            a=cursor.fetchone()
-            city.CountryName=a
     return render_template('citylist.html', citylist=cities)
 
 @app.route('/citydelete/<id>')
