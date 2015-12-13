@@ -569,7 +569,7 @@ def teamlist():
            cursor.execute(statement.format(team.ID))
            for Team_Comment_Text in cursor:
                team.Comments.append(Team_Comment_Text)
-    return render_template('teamlist.html', Teams=teams)
+    return render_template('teamlist.html', Teams=teams, IsAdmin = isAdmin)
 
 
 @app.route('/addteam', methods=['POST', 'GET'])
