@@ -18,6 +18,8 @@ class City:
             self.ID = ID
             self.Name = Name
             self.Comments = [];
+            self.CountryName="";
+            self.CountryID=0;
 
 class Team:
     def __init__(self,ID,Name):
@@ -50,7 +52,7 @@ class Place:
     def __init__(self,ID,Name):
         self.ID = ID
         self.Name = Name
-        
+
 class Author:
     def __init__(self,ID,Name,WorkDescription):
         self.ID = ID
@@ -145,11 +147,12 @@ def citylist():
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
         retval = ""
-        statement = """SELECT City_ID, City_Name FROM City ORDER BY City_ID"""
+        statement = """SELECT City_ID, City_Name, City_CountryID FROM City ORDER BY City_ID"""
         cursor.execute(statement)
         cities=[]
-        for City_ID,City_Name in cursor:
+        for City_ID,City_Name,City_CountryID in cursor:
            city=(City(City_ID,City_Name))
+           city.CountryID=City_CountryID
            cities.append(city)
            print(City_ID)
         for city in cities:
@@ -157,6 +160,10 @@ def citylist():
             cursor.execute(statement.format(city.ID))
             for City_Comment_Text in cursor:
                 city.Comments.append(City_Comment_Text)
+            statement="""SELECT Country_Name FROM Country WHERE Country_ID = {0}"""
+            cursor.execute(statement.format(city.CountryID))
+            a=cursor.fetchone()
+            city.CountryName=a
     return render_template('citylist.html', citylist=cities)
 
 @app.route('/citydelete/<id>')
@@ -879,7 +886,7 @@ def authorlist():
            author=(Author(Author_Student_ID,Author_Name,Author_Work_Description))
            authors.append(author)
     return render_template('contactus.html', authorlist=authors)
-    
+
  #-------------------------------------------------------------------------
 
 
@@ -897,7 +904,7 @@ def reset_database():
 
         query = """DROP TABLE IF EXISTS COUNTER CASCADE"""
         cursor.execute(query)
-        
+
         query = """DROP TABLE IF EXISTS Accommodation CASCADE"""
         cursor.execute(query)
 
@@ -924,11 +931,14 @@ def reset_database():
 
         query = """DROP TABLE IF EXISTS Team CASCADE"""
         cursor.execute(query)
-        
+
         query = """DROP TABLE IF EXISTS Admin CASCADE"""
         cursor.execute(query)
-        
+
         query = """DROP TABLE IF EXISTS Author CASCADE"""
+        cursor.execute(query)
+
+        query = """DROP TABLE IF EXISTS City_Comments CASCADE"""
         cursor.execute(query)
 
         connection.commit()
@@ -1003,9 +1013,6 @@ def initialize_database():
                     );"""
         cursor.execute(query)
 
-        query = """INSERT INTO Player_Comments (Player_ID, PLayer_Comment_Text) VALUES (2,'ismail bir tuhaf adamdır')"""
-
-
         query = """CREATE TABLE IF NOT EXISTS Tournament (
                                 Tournament_ID SERIAL PRIMARY KEY NOT NULL,
                                 Tournament_Name CHAR(50) NOT NULL,
@@ -1033,7 +1040,7 @@ def initialize_database():
                                 Place_Name CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
-        
+
         query = """CREATE TABLE IF NOT EXISTS Author (
                                 Author_Student_ID INT PRIMARY KEY NOT NULL,
                                 Author_Name CHAR(50) NOT NULL,
@@ -1046,7 +1053,7 @@ def initialize_database():
                     INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (90, 'Ismail', 'Player, Manager, ');
                     """
         cursor.execute(query)
-        
+
         query = """CREATE TABLE IF NOT EXISTS Admin (
                                 Admin_ID SERIAL PRIMARY KEY NOT NULL,
                                 Admin_Username CHAR(50) NOT NULL,
