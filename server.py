@@ -33,6 +33,7 @@ class Tournament:
     def __init__(self,ID,Name):
         self.ID = ID
         self.Name = Name
+        self.Comments = []
 
 class Comment:
     def __init__(self,ID,Text):
@@ -440,9 +441,15 @@ def tournamentlist():
         cursor.execute(statement)
         tournaments = []
         for Tournament_ID, Tournament_Name in cursor:
-            tournament=(Tournament(Tournament_ID, Tournament_Name))
+            tournament = (Tournament(Tournament_ID, Tournament_Name))
             tournaments.append(tournament)
-    return render_template('tournamentlist.html', tournamentlist=tournaments)
+        for tournament in tournaments:
+            statement = """SELECT Tournament_Comment_Text FROM Tournament_Comments WHERE Tournament_ID = {0}"""
+            cursor.execute(statement.format(tournament.ID))
+            for Tournament_Comment_Text in cursor:
+                tournament.Comments.append(Tournament_Comment_Text)
+        isAdmin = session['isValid']
+    return render_template('tournamentlist.html', tournamentlist=tournaments, IsAdmin = isAdmin)
 
 @app.route('/tournamentdelete/<id>')
 def tournamentdelete(id):
@@ -497,39 +504,32 @@ def updatetournament(id):
         return redirect(url_for('tournamentlist'))
     return render_template('updatetournament.html', ID=id)
 
-@app.route('/tournamentcomments/<id>')
-def tournamentcomments(id):
-    with dbapi2.connect(app.config['dsn']) as connection:
-        cursor = connection.cursor()
-        retval = ""
-        statement = """SELECT Tournament_Comment_ID, Tournament_Comment_Text
-                        FROM Tournament_Comments WHERE Tournament_ID=%s
-                        ORDER BY Tournament_Comment_ID""" % (id)
-        cursor.execute(statement)
-        comments=[]
-        for Tournament_Comment_ID,Tournament_Comment_Text in cursor:
-           comment=(Tournament(Tournament_Comment_ID,Tournament_Comment_Text))
-           comments.append(comment)
-    return render_template('tournamentcomments.html', ID=id ,commentlist=comments)
 
-@app.route('/addtournamentcomment', methods=['POST', 'GET'])
-def addtournamentcomment():
+
+@app.route('/addtournamentcomment/<id>', methods=['POST', 'GET'])
+def addtournamentcomment(id):
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
-            Comment_ID = request.form['Comment_ID']
-            Text = request.form['Text']
-            Tournament_ID = request.form['Tournament_ID']
+
+            Comment = request.form['Comment']
+
+            query = """CREATE TABLE IF NOT EXISTS Tournament_Comments (
+                                Tournament_Comment_ID SERIAL PRIMARY KEY NOT NULL,
+                                Tournament_ID INTEGER REFERENCES Tournament(Tournament_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                Tournament_Comment_Text CHAR(500) NOT NULL
+                    );"""
+            cursor.execute(query)
+
             try:
-                query = """INSERT INTO Tournament_Comments (Tournament_Comment_ID, Tournament_ID, Tournament_Comment_Text)
-                    VALUES (%s, %s, %s)"""
-                cursor.execute(query, (Comment_ID, Tournament_ID, Text))
+                queryWithFormat = """INSERT INTO Tournament_Comments (Tournament_ID, Tournament_Comment_Text) VALUES (%s,%s)"""
+                cursor.execute(queryWithFormat, (id, Comment))
                 connection.commit()
             except dbapi2.DatabaseError:
                 connection.rollback()
                 return "error happened"
         return redirect(url_for('tournamentlist'))
-    return render_template('tournamentcomments.html', ID=Tournament_ID)
+    return render_template('addtournamentcomment.html', ID=id)
 
 @app.route('/searchtournament', methods=['POST', 'GET'])
 def searchtournament():
