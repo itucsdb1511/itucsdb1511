@@ -186,7 +186,7 @@ def citylist():
             for City_Comment_Text in cursor:
                 city.Comments.append(City_Comment_Text)
         isAdmin = session['isValid']
-    return render_template('playerlist.html', Players = players, IsAdmin = isAdmin)
+    return render_template('citylist.html', Cities = cities, IsAdmin = isAdmin)
 
 @app.route('/citydelete/<id>')
 def citydelete(id):
