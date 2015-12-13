@@ -9,7 +9,9 @@
 		}
 	</style>
 
+	{% if IsAdmin == True %}
 	<a style="font-weight:Bold" href="{{ url_for('addplayer') }}">Add player</a>
+	{% endif %}
 	<a style="font-weight:Bold" href="{{ url_for('searchplayer') }}">Search player</a>
 
 	<table border="1" id="tbl" >
@@ -21,12 +23,14 @@
 			<tr>
 				<td>{{ player.ID }}</td>
 				<td>{{ player.Name }}</td>
+				{% if IsAdmin == True %}
 				<td>
 				<a href="{{ url_for('playerdelete',id = player.ID) }}">Delete player</a>
 				</td>
 				<td>
 				<a href="{{ url_for('updateplayer',id = player.ID) }}">Update player</a>
 				</td>
+				{% endif %}
 				<td>
 					<a href="{{ url_for('addplayercomment',id = player.ID) }}">Add comment for this player</a>
 				</td>
