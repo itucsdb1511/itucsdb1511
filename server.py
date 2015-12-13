@@ -699,10 +699,13 @@ def countrylist():
         for Country_ID,Country_Name in cursor:
            country=(Country(Country_ID,Country_Name))
            countries.append(country)
-    return render_template('countrylist.html', countrylist=countries)
-
+        isAdmin = session['isValid']
+    return render_template('countrylist.html', countrylist = countries, IsAdmin = isAdmin)
+    
 @app.route('/countrydelete/<id>')
 def countrydelete(id):
+    if session['isValid'] == False:
+        return "You are not authorized"
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
         statement = """DELETE FROM Country WHERE Country_ID={0}"""
@@ -712,6 +715,8 @@ def countrydelete(id):
 
 @app.route('/addcountry', methods=['POST', 'GET'])
 def addcountry():
+    if session['isValid'] == False:
+        return "You are not authorized"
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
@@ -729,6 +734,8 @@ def addcountry():
 
 @app.route('/updatecountry/<id>', methods=['POST', 'GET'])
 def updatecountry(id):
+    if session['isValid'] == False:
+        return "You are not authorized"
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
@@ -813,10 +820,13 @@ def accommodationlist():
             cursor.execute(statement.format(accommodation.ID))
             for Accommodation_Comment_Text in cursor:
                 accommodation.Comments.append(Accommodation_Comment_Text)
-    return render_template('accommodationlist.html', accommodationlist=accommodationies)
+    isAdmin = session['isValid']
+    return render_template('accommodationlist.html', accommodationlist = accommodationies, IsAdmin = isAdmin)
 
 @app.route('/accommodationdelete/<id>')
 def accommodationdelete(id):
+    if session['isValid'] == False:
+        return "You are not authorized"
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
         statement = """DELETE FROM Accommodation WHERE Accommodation_ID={0}"""
@@ -826,6 +836,8 @@ def accommodationdelete(id):
 
 @app.route('/addaccommodation', methods=['POST', 'GET'])
 def addaccommodation():
+    if session['isValid'] == False:
+        return "You are not authorized"
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
@@ -882,6 +894,8 @@ def addaccommodationcomment(id):
 
 @app.route('/updateaccommodation/<id>', methods=['POST', 'GET'])
 def updateaccommodation(id):
+    if session['isValid'] == False:
+        return "You are not authorized"
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
