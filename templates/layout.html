@@ -26,7 +26,12 @@
 						<li><a href="#">Manager</a></li>
 					</ul>
 					<ul class="nav navbar-nav navbar-right">
+					{% if IsAdmin == False %}
 						<li><a href="/login"><span class="glyphicon glyphicon-user"></span>Admin Panel</a></li>
+					{% endif %}
+					{% if IsAdmin == True %}
+						<li><a href="/logout"><span class="glyphicon glyphicon-user"></span>Logout</a></li>
+					{% endif %}
 					</ul>
 				</div>
 			</div>
