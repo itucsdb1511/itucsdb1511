@@ -48,7 +48,7 @@ class Place:
     def __init__(self,ID,Name):
         self.ID = ID
         self.Name = Name
-        
+
 class Author:
     def __init__(self,ID,Name,WorkDescription):
         self.ID = ID
@@ -124,7 +124,8 @@ def home_page():
             tournament = Tournament(Tournament_ID,Tournament_Name)
             tournaments.append([i,(tournament),City_Name])
             i = i + 1
-    return render_template('home.html', CityList = cities, PlayerList = players, TeamList = teams, Tournament = tournaments)
+        isAdmin = session['isValid']
+    return render_template('home.html', CityList = cities, PlayerList = players, TeamList = teams, Tournament = tournaments, IsAdmin = isAdmin)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -204,7 +205,7 @@ def citydelete(id):
 @app.route('/addcity', methods=['POST', 'GET'])
 def addcity():
     if session['isValid'] == False:
-        return "You are not authorized"        
+        return "You are not authorized"
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
@@ -574,6 +575,8 @@ def teamlist():
 @app.route('/addteam', methods=['POST', 'GET'])
 def addteam():
     if request.method == 'POST':
+        if session['isValid'] == False:
+            return "You are not authorized"
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
 
@@ -608,6 +611,8 @@ def addteam():
 
 @app.route('/teamdelete/<id>')
 def teamdelete(id):
+    if session['isValid'] == False:
+        return "You are not authorized"
     with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
             statement = """DELETE FROM Team WHERE Team_ID={0}"""
@@ -617,6 +622,8 @@ def teamdelete(id):
 
 @app.route('/updateteam/<id>', methods=['POST', 'GET'])
 def updateteam(id):
+    if session['isValid'] == False:
+        return "You are not authorized"
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
@@ -923,7 +930,7 @@ def authorlist():
            author=(Author(Author_Student_ID,Author_Name,Author_Work_Description))
            authors.append(author)
     return render_template('contactus.html', authorlist=authors)
-    
+
  #-------------------------------------------------------------------------
 
 
@@ -941,7 +948,7 @@ def reset_database():
 
         query = """DROP TABLE IF EXISTS COUNTER CASCADE"""
         cursor.execute(query)
-        
+
         query = """DROP TABLE IF EXISTS Accommodation CASCADE"""
         cursor.execute(query)
 
@@ -968,10 +975,10 @@ def reset_database():
 
         query = """DROP TABLE IF EXISTS Team CASCADE"""
         cursor.execute(query)
-        
+
         query = """DROP TABLE IF EXISTS Admin CASCADE"""
         cursor.execute(query)
-        
+
         query = """DROP TABLE IF EXISTS Author CASCADE"""
         cursor.execute(query)
 
@@ -1078,7 +1085,7 @@ def initialize_database():
                                 Place_Name CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
-        
+
         query = """CREATE TABLE IF NOT EXISTS Author (
                                 Author_Student_ID INT PRIMARY KEY NOT NULL,
                                 Author_Name CHAR(50) NOT NULL,
@@ -1091,7 +1098,7 @@ def initialize_database():
                     INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (90, 'Ismail', 'Player, Manager, ');
                     """
         cursor.execute(query)
-        
+
         query = """CREATE TABLE IF NOT EXISTS Admin (
                                 Admin_ID SERIAL PRIMARY KEY NOT NULL,
                                 Admin_Username CHAR(50) NOT NULL,
