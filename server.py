@@ -155,7 +155,7 @@ def login():
 @app.route('/logout')
 def logout():
     session['isValid'] = False
-    return "logged out"
+    return redirect(url_for('home_page'))
 
 @app.route('/riderlist')
 def riderlist():
