@@ -3,33 +3,24 @@
 {% block content %}
 	<h2>City List</h2>
 	<style>
-		tr td,th{
+		#tbl tr td,th{
 			padding:5px;
 			text-align: center;
 		}
-
 	</style>
 
 	<a style="font-weight:Bold" href="{{ url_for('addcity') }}">Add City</a>
 	<a style="font-weight:Bold" href="{{ url_for('searchcity') }}">Search City</a>
 
-	<div class="panel-heading">Tournament City List</div>
-    <table class="table">
-    <thead>
-    	<tr>
-   			<th>#</th>
-    		<th>City Name</th>
-    		<th>Country Name</th>
-    		<th>Comments</th>
-    		<th>Operations</th>
-    </tr>
-    </thead>
+	<table border="1" id="tbl">
+	<tr>
+		<th>City ID</th>
+		<th>City Name</th>
+	</tr>
 		{% for city in citylist %}
 			<tr>
-				<td></td>
-
+				<td>{{ city.ID }}</td>
 				<td>{{ city.Name }}</td>
-				<td>{{ city.CountryName }}</td>
 				<td>
 				<a href="{{ url_for('citydelete',id=city.ID) }}">Delete City</a>
 				</td>
