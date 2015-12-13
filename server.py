@@ -82,6 +82,8 @@ def get_elephantsql_dsn(vcap_services):
 
 @app.route('/')
 def home_page():
+    if not (session.get('isValid') == True or session.get('isValid') == False):
+        session['isValid'] = False
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
         retval = ""
