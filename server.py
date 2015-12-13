@@ -6,9 +6,7 @@ import re
 
 
 
-from flask import Flask
-from flask import request
-from flask import redirect
+from flask import Flask, session, redirect, url_for, escape, request
 from flask import render_template
 from flask.helpers import url_for
 import psycopg2
@@ -64,7 +62,7 @@ class Accommodation:
             self.Comments= []
 
 app = Flask(__name__)
-
+app.secret_key = 'this key is supposed to be secret'
 
 def connect_db():
     conn = psycopg2.connect(app.config['dsn'])
@@ -126,6 +124,36 @@ def home_page():
             i = i + 1
     return render_template('home.html', CityList = cities, PlayerList = players, TeamList = teams, Tournament = tournaments)
 
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        with dbapi2.connect(app.config['dsn']) as connection:
+            cursor = connection.cursor()
+
+            userName = request.form['username']
+            userPassword = request.form['password']
+
+            query = """ SELECT COUNT(*) FROM Admin WHERE Admin_Username = '{0}' AND Admin_Password= '{1}' """
+            cursor.execute(query.format(userName,userPassword))
+
+            a = cursor.fetchone()[0]
+
+            if a >= 1:
+                session['isValid'] = True
+                return redirect(url_for('home_page'))
+            return 'epic fail!!'
+
+    with dbapi2.connect(app.config['dsn']) as connection:
+        cursor = connection.cursor()
+        query = """INSERT INTO Admin (Admin_Username, Admin_Password) VALUES ('ismail', 'deneme12')"""
+        cursor.execute(query)
+        return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session['isValid'] = False
+    return "logged out"
 
 @app.route('/riderlist')
 def riderlist():
@@ -282,7 +310,8 @@ def playerlist():
             cursor.execute(statement.format(player.ID))
             for Player_Comment_Text in cursor:
                 player.Comments.append(Player_Comment_Text)
-    return render_template('playerlist.html', Players = players)
+        isAdmin = session['isValid']
+    return render_template('playerlist.html', Players = players, IsAdmin = isAdmin)
 
 @app.route('/searchplayer', methods=['POST', 'GET'])
 def searchplayer():
@@ -306,6 +335,8 @@ def searchplayer():
 
 @app.route('/playerdelete/<id>')
 def playerdelete(id):
+    if session['isValid'] == False:
+        return "You are not authorized"
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
         statement = """DELETE FROM Player WHERE Player_ID={0}"""
@@ -315,6 +346,8 @@ def playerdelete(id):
 
 @app.route('/addplayer', methods=['POST', 'GET'])
 def addplayer():
+    if session['isValid'] == False:
+        return "You are not authorized"
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
@@ -370,6 +403,8 @@ def addplayercomment(id):
 
 @app.route('/updateplayer/<id>', methods=['POST', 'GET'])
 def updateplayer(id):
+    if session['isValid'] == False:
+        return "You are not authorized"
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
@@ -938,6 +973,7 @@ def reset_database():
 
 @app.route('/initdb')
 def initialize_database():
+    session['isValid'] = False
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
 
