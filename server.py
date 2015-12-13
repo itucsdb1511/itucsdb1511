@@ -19,7 +19,6 @@ class City:
             self.Name = Name
             self.Comments = [];
 
-
 class Team:
     def __init__(self,ID,Name):
         self.ID = ID
@@ -51,7 +50,7 @@ class Place:
     def __init__(self,ID,Name):
         self.ID = ID
         self.Name = Name
-
+        
 class Author:
     def __init__(self,ID,Name,WorkDescription):
         self.ID = ID
@@ -174,8 +173,11 @@ def addcity():
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
+
             Name = request.form['Name']
             CountryID = request.form['selectedValue']
+
+
             query = """CREATE TABLE IF NOT EXISTS City ( City_ID SERIAL PRIMARY KEY NOT NULL, City_Name CHAR(50) NOT NULL, City_CountryID INT REFERENCES Country (Country_ID) ON DELETE CASCADE ON UPDATE CASCADE    );"""
             cursor.execute(query)
             try:
@@ -877,7 +879,7 @@ def authorlist():
            author=(Author(Author_Student_ID,Author_Name,Author_Work_Description))
            authors.append(author)
     return render_template('contactus.html', authorlist=authors)
-
+    
  #-------------------------------------------------------------------------
 
 
@@ -895,7 +897,7 @@ def reset_database():
 
         query = """DROP TABLE IF EXISTS COUNTER CASCADE"""
         cursor.execute(query)
-
+        
         query = """DROP TABLE IF EXISTS Accommodation CASCADE"""
         cursor.execute(query)
 
@@ -922,14 +924,11 @@ def reset_database():
 
         query = """DROP TABLE IF EXISTS Team CASCADE"""
         cursor.execute(query)
-
+        
         query = """DROP TABLE IF EXISTS Admin CASCADE"""
         cursor.execute(query)
-
+        
         query = """DROP TABLE IF EXISTS Author CASCADE"""
-        cursor.execute(query)
-
-        query = """DROP TABLE IF EXISTS City_Comments CASCADE"""
         cursor.execute(query)
 
         connection.commit()
@@ -1004,6 +1003,9 @@ def initialize_database():
                     );"""
         cursor.execute(query)
 
+        query = """INSERT INTO Player_Comments (Player_ID, PLayer_Comment_Text) VALUES (2,'ismail bir tuhaf adamdır')"""
+
+
         query = """CREATE TABLE IF NOT EXISTS Tournament (
                                 Tournament_ID SERIAL PRIMARY KEY NOT NULL,
                                 Tournament_Name CHAR(50) NOT NULL,
@@ -1031,7 +1033,7 @@ def initialize_database():
                                 Place_Name CHAR(50) NOT NULL
                     );"""
         cursor.execute(query)
-
+        
         query = """CREATE TABLE IF NOT EXISTS Author (
                                 Author_Student_ID INT PRIMARY KEY NOT NULL,
                                 Author_Name CHAR(50) NOT NULL,
@@ -1044,7 +1046,7 @@ def initialize_database():
                     INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (90, 'Ismail', 'Player, Manager, ');
                     """
         cursor.execute(query)
-
+        
         query = """CREATE TABLE IF NOT EXISTS Admin (
                                 Admin_ID SERIAL PRIMARY KEY NOT NULL,
                                 Admin_Username CHAR(50) NOT NULL,
