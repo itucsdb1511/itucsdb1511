@@ -174,11 +174,8 @@ def addcity():
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
-
             Name = request.form['Name']
             CountryID = request.form['selectedValue']
-
-
             query = """CREATE TABLE IF NOT EXISTS City ( City_ID SERIAL PRIMARY KEY NOT NULL, City_Name CHAR(50) NOT NULL, City_CountryID INT REFERENCES Country (Country_ID) ON DELETE CASCADE ON UPDATE CASCADE    );"""
             cursor.execute(query)
             try:
