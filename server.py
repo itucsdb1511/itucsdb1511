@@ -1106,11 +1106,11 @@ def initialize_database():
                                 Author_Name CHAR(50) NOT NULL,
                                 Author_Work_Description CHAR(500) NOT NULL
                     );
-                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (12, 'Alper', 'Tournament, Tournament_Comment, Author');
-                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (34, 'Cem', 'Team, Team_Comment, ');
-                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (56, 'Tunahan', 'City, Country, ');
-                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (78, 'Emre', 'Place');
-                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (90, 'Ismail', 'Player, Manager, ');
+                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (150110018, 'Alper', 'Tournament, Tournament_Comment, Author');
+                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (150120251, 'Cem', 'Team, Team_Comment, Admin Table');
+                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (150110047, 'Tunahan', 'City, Country, Accommodation');
+                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (150110023, 'Emre', 'Place');
+                    INSERT INTO Author (Author_Student_ID, Author_Name, Author_Work_Description) VALUES (150110004, 'Ismail', 'Player, Manager, Admin Authorization');
                     """
         cursor.execute(query)
 
