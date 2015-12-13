@@ -185,10 +185,13 @@ def citylist():
             cursor.execute(statement.format(city.ID))
             for City_Comment_Text in cursor:
                 city.Comments.append(City_Comment_Text)
-    return render_template('citylist.html', citylist=cities)
+        isAdmin = session['isValid']
+    return render_template('playerlist.html', Players = players, IsAdmin = isAdmin)
 
 @app.route('/citydelete/<id>')
 def citydelete(id):
+    if session['isValid'] == False:
+        return "You are not authorized"
     with dbapi2.connect(app.config['dsn']) as connection:
         cursor = connection.cursor()
         statement = """DELETE FROM City WHERE City_ID={0}"""
@@ -198,6 +201,8 @@ def citydelete(id):
 
 @app.route('/addcity', methods=['POST', 'GET'])
 def addcity():
+    if session['isValid'] == False:
+        return "You are not authorized"        
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
@@ -254,6 +259,8 @@ def addcitycomment(id):
 
 @app.route('/updatecity/<id>', methods=['POST', 'GET'])
 def updatecity(id):
+    if session['isValid'] == False:
+        return "You are not authorized"
     if request.method == 'POST':
         with dbapi2.connect(app.config['dsn']) as connection:
             cursor = connection.cursor()
