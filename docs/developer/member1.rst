@@ -1,4 +1,4 @@
-Parts Implemented by Member Name
+Parts Implemented by Tunahan Erkoyuncu
 ================================
 
 Tables
