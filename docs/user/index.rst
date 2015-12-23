@@ -78,3 +78,79 @@ Admins can add comment for the player.
       :alt: Player Admin
 
       Player Table Admin Operations:To add player to database, click the “Add Player” button.To delete player, click the “delete player” button on the selected player. To update a player, click the “Update Player” button and type the new player name.To add comments for the player, click the “Add Comments for Player” button and type the new comment.
+      
+      
+
+
+Non-admin User Functions
+--------------------
+Non-admin users can access the Cycling functions throgh the list at the top menu.
+Non-admin users can only perform Search operation through main tables, they cannot see Add/Delete/Update links. Also, they can add new comments or see comments.
+
+* Search main tables
+* Add comments 
+* See comments
+
+User Player Operations
+++++++++++++
+Non-admin users can see players in Player List table and they can use search function in Player List. Also, they can add comments.
+
+   .. figure:: pics/user_playerlist.png
+      :scale: 60 %
+      :alt: Homepage
+
+      Player List view of the non-admin user
+      
+User City Operations
+++++++++++++
+Non-admin users can see players in City List table and they can use search function in City List. Also, they can add comments.
+
+   .. figure:: pics/user_citylist.png
+      :scale: 60 %
+      :alt: Homepage
+
+      City List view of the non-admin user
+      
+User Team Operations
+++++++++++++
+Non-admin users can see players in Team List table and they can use search function in Team List. Also, they can add comments.
+
+   .. figure:: pics/user_teamlist.png
+      :scale: 60 %
+      :alt: Homepage
+
+      Team List view of the non-admin user
+
+
+User Accomodation Operations
+++++++++++++
+Non-admin users can see players in Accomodation List table and they can use search function in Accomodation List. Also, they can add comments.
+
+   .. figure:: pics/user_accomodationlist.png
+      :scale: 60 %
+      :alt: Homepage
+
+      Accomodation List view of the non-admin user
+
+
+User Country Operations
+++++++++++++
+Non-admin users can see players in Country List table and they can use search function in Country List. Also, they can add comments.
+
+   .. figure:: pics/user_countrylist.png
+      :scale: 60 %
+      :alt: Homepage
+
+      Country List view of the non-admin user
+
+
+User Tournament Operations
+++++++++++++
+Non-admin users can see players in Tournament List table and they can use search function in Tournament List. Also, they can add comments.
+
+   .. figure:: pics/user_tournamentlist.png
+      :scale: 60 %
+      :alt: Homepage
+
+      Tournament List view of the non-admin user
+
