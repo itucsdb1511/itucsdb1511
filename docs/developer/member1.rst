@@ -2,7 +2,7 @@ Parts Implemented by Tunahan Erkoyuncu
 ================================
 
 Tables
--------
++++++++
 
 City Table
 ~~~~~~~~~~
@@ -129,8 +129,11 @@ Accommodation Comment Table
 
 * Foreign key of the Accommodation Comments table has references Accommodation table (*Accommodation_ID*) on *Delete Cascade and Update Cascade*.
 
+
+
 Methods
 ++++++++
+
 
 City Methods
 ~~~~~~~~~~~~~
