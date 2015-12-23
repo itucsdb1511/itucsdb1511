@@ -60,7 +60,7 @@ Non-admin users can see players in Accomodation List table and they can use sear
       :scale: 60 %
       :alt: Homepage
 
-      Accomodation List view of the non-admin user
+      Accommodation List view of the non-admin user
 
 
 User Country Operations
