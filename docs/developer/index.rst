@@ -1,24 +1,9 @@
 Developer Guide
 ===============
 
-Database Design
----------------
+.. toctree::
+    :maxdepth: 5
+   databaseDesign/databaseDesign.rst 
+   code/code.rst
 
-**explain the database design of your project**
-
-**include the E/R diagram(s)**
-
-Code
-----
-
-**explain the technical structure of your code**
-
-**to include a code listing, use the following example**::
-
-   .. code-block:: python
-
-      class Foo:
-
-         def __init__(self, x):
-            self.x = x
 
