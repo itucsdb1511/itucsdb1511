@@ -90,7 +90,9 @@ Team Methods
 ~~~~~~~~~~~~~
 
 
-team list
+* Team list
+This method list the all of the teams in the database. Also in this method team comment from Team Comment table are listed too.
+Team ID, Team Name and Team Comments listed using the 2 statements.
 
    .. code-block:: python
 
@@ -106,7 +108,8 @@ team list
                team=(Team(Team_ID,Team_Name))
                teams.append(team)
             for team in teams:
-               statement = """SELECT Team_Comment_Text FROM Team_Comments WHERE Team_ID = {0}"""
+               statement = """SELECT Team_Comment_Text FROM Team_Comments 
+               WHERE Team_ID = {0}"""
                cursor.execute(statement.format(team.ID))
                for Team_Comment_Text in cursor:
                    team.Comments.append(Team_Comment_Text)
@@ -115,7 +118,9 @@ team list
 
 
 
-add team
+* Add team
+This methods add a new team to the *Team* table. Query is *"""INSERT INTO Team (Team_Name, Team_CountryID) VALUES (%s, %s)"""*.
+Also this methods control the session. If the session value is false then this operations can not be completed.
 
    .. code-block:: python
 
@@ -133,7 +138,8 @@ add team
                 query = """CREATE TABLE IF NOT EXISTS Team (
                                     Team_ID SERIAL PRIMARY KEY NOT NULL,
                                     Team_Name CHAR(50) NOT NULL,
-                                    Team_CountryID INT REFERENCES Country (Country_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                    Team_CountryID INT REFERENCES Country (Country_ID) ON 
+                                    DELETE CASCADE ON UPDATE CASCADE,
                                     Team_Total_Points INT DEFAULT 0
                         );"""
                 cursor.execute(query)
@@ -157,7 +163,10 @@ add team
         return render_template('addteam.html', Countries = countries)
 
 
-delete team
+* Team Delete
+This method deletes teams from the *Team* table. Query is *DELETE FROM Team WHERE Team_ID={0}*. 
+Team comments and players connected to corresponding team ID are also deleted because of the foreign key.
+Also this methods control the session. If the session value is false then this operations can not be completed.
 
    .. code-block:: python
 
@@ -174,7 +183,10 @@ delete team
 
 
 
-update team
+* Update team
+This method updates team name on the *Team* table.
+Query is *UPDATE Team SET Team_Name='%s' WHERE Team_ID='%s'*
+Also this methods control the session. If the session value is false then this operations can not be completed.
 
    .. code-block:: python
 
@@ -199,7 +211,10 @@ update team
         return render_template('updateteam.html', ID=id)
 
 
-add team comment
+* Add team comment
+This method adds new comment for the *Team_Comments* table . Query is *INSERT INTO Team_Comments 
+(Team_ID, Team_Comment_Text) VALUES (%s, %s)*
+Comments text taken from the user.
 
    .. code-block:: python
 
@@ -211,7 +226,8 @@ add team comment
                 Comment = request.form['Comment']
                 query = """CREATE TABLE IF NOT EXISTS Team_Comments (
                                     Team_Comment_ID SERIAL PRIMARY KEY NOT NULL,
-                                    Team_ID INTEGER REFERENCES Team(Team_ID) ON DELETE CASCADE ON UPDATE CASCADE,
+                                    Team_ID INTEGER REFERENCES Team(Team_ID) ON DELETE 
+                                    CASCADE ON UPDATE CASCADE,
                                     Team_Comment_Text CHAR(500) NOT NULL
                         );"""
                 cursor.execute(query)
@@ -227,7 +243,9 @@ add team comment
         return render_template('addteamcomment.html', ID=id)
 
 
-search team
+* Search Team
+This method searchs an Team object in database by the Team name.
+Query is *SELECT Team_ID, Team_Name FROM Team WHERE Team_Name like '%{0}%'*
 
    .. code-block:: python
 
@@ -239,7 +257,8 @@ search team
                 textstr = request.form['textstr']
                 teams = []
                 try:
-                    query = """SELECT Team_ID, Team_Name FROM Team WHERE Team_Name like '%{0}%'"""
+                    query = """SELECT Team_ID, Team_Name FROM Team 
+                    WHERE Team_Name like '%{0}%'"""
                     cursor.execute(query.format(textstr))
                     for Team_ID, Team_Name in cursor:
                         team = Team(Team_ID,Team_Name)
